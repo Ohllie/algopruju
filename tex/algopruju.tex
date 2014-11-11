@@ -1,0 +1,47 @@
+\documentclass[a4paper,10pt]{article}
+\usepackage[top=2cm, bottom=1cm, left=1cm, right=1cm]{geometry}
+\frenchspacing
+\usepackage[english]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage[T1]{fontenc}
+\usepackage{url}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{listings}
+\usepackage{multicol}
+\usepackage[small,compact]{titlesec}
+\usepackage{marginnote}
+\usepackage{multirow}
+\usepackage{float}
+\usepackage{enumitem}
+\usepackage{tikz}
+\usepackage{fancyhdr}
+
+\usepackage[scaled]{beramono}
+\lstset{basicstyle=\footnotesize\ttfamily}
+
+\begin{document}
+
+\pagestyle{fancy}
+\lhead{Aalto University}
+\chead{}
+\rhead{\thepage}
+\lfoot{}
+\cfoot{}
+\rfoot{}
+
+\twocolumn
+
+\tableofcontents
+
+\section{String algorithms}
+
+\subsection{Hello World!}
+
+\lstinputlisting[language=C++]{../src/hello.cpp}
+
+\end{document}
+
