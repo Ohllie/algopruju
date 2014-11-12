@@ -10,12 +10,10 @@ char* eratosthenes(int n){
     for(int i = 0; i <= n; i++) 
         isPrime[i] = (i <= 1) ? 0 : 1;
 
-    for(int i = 2; i <= m; i++){
-        if(isPrime[i]){
-            for (int j = 2*i; j <= n; j += i){
+    for(int i = 2; i <= m; i++)
+        if(isPrime[i])
+            for (int j = 2*i; j <= n; j += i)
                 isPrime[j] = 0; 
-            }
-        }
-    }
+
     return isPrime;
 }
