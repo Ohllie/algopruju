@@ -40,9 +40,7 @@ int maxflow(Mat g, int source, int sink, Mat &result)
 {
     Mat residual = g;
     vector<int> parent;
-    for (int i = 0; i < g.size; ++i) {
-        parent.push_back(-1);
-    }
+    parent.resize(g.size, -1);
     
     int max_flow = 0;
     while (bfs(residual, source, sink, parent)) {
