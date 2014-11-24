@@ -22,7 +22,8 @@ void segTreeSet(vector<int>& tree, int (*f) (int,int), int pos, int value){
 int segTreeGet(vector<int>& tree, int (*f) (int,int), int i, int j){
     i += tree.size()/2;
     j += tree.size()/2;
-    int q = tree[i];
+    int q = tree[i]; // q = tree[i] for min- and max-tree, q = zero for sum-tree
+    // In general q should be initialized to a neutral element of the operation f
     while(i <= j){
         if(i%2 == 1) q = f(q,tree[i++]);
         if(j%2 == 0) q = f(q,tree[j--]);
