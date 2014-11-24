@@ -20,7 +20,6 @@ void segTreeSet(vector<int>& tree, int (*f) (int,int), int pos, int value){
 }
 
 int segTreeGet(vector<int>& tree, int (*f) (int,int), int i, int j){
-    if(i < 0) return 0;
     i += tree.size()/2;
     j += tree.size()/2;
     int q = tree[i];
