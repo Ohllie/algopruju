@@ -1,57 +1,43 @@
 #include <iostream>
 #include <string>
 #include <vector>
-
+ 
 using namespace std;
-
-void KMP(vector<int> pat, vector<int> txt) {
-	int len = 0;
-	int i = 1; 
-	vector<int> lps(pat.size(), 0);
-	while (i < pat.size()) {
-		if (pat[i] == pat[len]) {
-			len++;
-			lps[i] = len;
-			i++;
-		}
-		else {
-			if (len != 0)
-				len = lps[len-1];
-			else {
-				lps[i] = 0;
-				i++;
-			}
-		}
-	}
-	
-	int j = 0;
-	i = 0;
-	while (i < txt.size()) {
-		if (pat[j] == txt[i]) {
-			j++;
-			i++;
-		}
-		if (j == pat.size()) {
-			cout << "Match at index " << i-j << endl;
-			j = lps[j-1];
-		}
-		else if (i < txt.size() && pat[j] != txt[i]) {
-			if (j != 0)
-				j = lps[j-1];
-			else
-				i = i+1;
-		}
-	}
+ 
+vector<int> get_border_array(string& P){
+    vector<int> B(P.size()+1);
+    if(B.size() == 1) return B;
+    for(int L = 2; L <= P.size(); L++){
+        int prev_longest = L-1;
+        while(prev_longest != 0){
+            prev_longest = B[prev_longest];
+            if(P[L-1] == P[prev_longest]){
+                B[L] = prev_longest + 1;
+                break;
+            }
+        }
+    }
+   return B;
+   
 }
-
-int main()
-{
-	string txt = "ABABDABACDABABCABAB";
-	string pat = "ABABCABAB";
-
-	vector<int> txtv(txt.begin(), txt.end());
-	vector<int> patv(pat.begin(), pat.end());
-
-	KMP(patv, txtv);
-	return 0;
+ 
+vector<int> kmp(string& P, string& S){
+    auto B = get_border_array(P);
+    int length = 0;
+    vector<int> occurrences;
+    for(int i = 0; i < S.size(); i++){
+        while(length == P.size() || P[length] != S[i]){
+            length = B[length];
+            if(length == 0) break;
+        }
+        if(S[i] == P[length]) length++;
+        if(length == P.size()) occurrences.push_back(i-P.size()+1);
+    }
+    return occurrences;
+}
+ 
+static void example_usage(){
+    string s = "ababbaabbaababaaababa";
+    string p = "aba";
+    for(auto i : kmp(p,s)) cout << i << " "; cout << endl;
 }
