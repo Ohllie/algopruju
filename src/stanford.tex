@@ -1,4 +1,5 @@
-\subsection{Dinic.cc 1/35}
+\subsection{Combinatorial optimization}
+\subsubsection{Sparse max-flow (C++)}
 \begin{lstlisting}[language=C++]
 // Adjacency list implementation of Dinic's blocking flow algorithm.
 // This is very fast in practice, and only loses to push-relabel flow.
@@ -105,7 +106,7 @@ struct Dinic {
 };
 
 \end{lstlisting}
-\subsection{MinCostMaxFlow.cc 2/35}
+\subsubsection{Min-cost max-flow (C++)}
 \begin{lstlisting}[language=C++]
 // Implementation of min cost max flow algorithm using adjacency
 // matrix (Edmonds and Karp 1972).  This implementation keeps track of
@@ -209,7 +210,7 @@ struct MinCostMaxFlow {
 };
 
 \end{lstlisting}
-\subsection{PushRelabel.cc 3/35}
+\subsubsection{Push-relabel max-flow (C++)}
 \begin{lstlisting}[language=C++]
 // Adjacency list implementation of FIFO push relabel maximum flow
 // with the gap relabeling heuristic.  This implementation is
@@ -329,7 +330,7 @@ struct PushRelabel {
 };
 
 \end{lstlisting}
-\subsection{MinCostMatching.cc 4/35}
+\subsubsection{Min-cost matching (C++)}
 \begin{lstlisting}[language=C++]
 //////////////////////////////////////////////////////////////////////
 // Min cost bipartite matching via shortest augmenting paths
@@ -462,7 +463,7 @@ double MinCostMatching(const VVD &cost, VI &Lmate, VI &Rmate) {
 }
 
 \end{lstlisting}
-\subsection{MaxBipartiteMatching.cc 5/35}
+\subsubsection{Max bipartite matching (C++)}
 \begin{lstlisting}[language=C++]
 // This code performs maximum bipartite matching.
 //
@@ -507,7 +508,7 @@ int BipartiteMatching(const VVI &w, VI &mr, VI &mc) {
 }
 
 \end{lstlisting}
-\subsection{MinCut.cc 6/35}
+\subsubsection{Global min cut (C++)}
 \begin{lstlisting}[language=C++]
 // Adjacency matrix implementation of Stoer-Wagner min cut algorithm.
 //
@@ -565,7 +566,7 @@ pair<int, VI> GetMinCut(VVI &weights) {
 }
 
 \end{lstlisting}
-\subsection{GraphCutInference.cc 7/35}
+\subsubsection{Graph cut inference (C++)}
 \begin{lstlisting}[language=C++]
 // Special-purpose {0,1} combinatorial optimization solver for
 // problems of the following by a reduction to graph cuts:
@@ -728,7 +729,8 @@ int main() {
 }
 
 \end{lstlisting}
-\subsection{ConvexHull.cc 8/35}
+\subsection{Geometry}
+\subsubsection{Convex hull (C++)}
 \begin{lstlisting}[language=C++]
 // Compute the 2D convex hull of a set of points using the monotone chain
 // algorithm.  Eliminate redundant points from the hull if REMOVE_REDUNDANT is 
@@ -800,7 +802,7 @@ void ConvexHull(vector<PT> &pts) {
 }
 
 \end{lstlisting}
-\subsection{Geometry.cc 9/35}
+\subsubsection{Miscellaneous geometry (C++)}
 \begin{lstlisting}[language=C++]
 // C++ routines for computational geometry.
 
@@ -1104,7 +1106,7 @@ int main() {
   return 0;
 }
 \end{lstlisting}
-\subsection{JavaGeometry.java 10/35}
+\subsubsection{Java geometry (Java)}
 \begin{lstlisting}
 // In this example, we read an input file containing three lines, each
 // containing an even number of doubles, separated by commas.  The first two
@@ -1252,7 +1254,7 @@ public class JavaGeometry {
 }
 
 \end{lstlisting}
-\subsection{Geom3D.java 11/35}
+\subsubsection{3D geometry (Java)}
 \begin{lstlisting}[language=C++]
 public class Geom3D {
   // distance from point (x, y, z) to plane aX + bY + cZ + d = 0
@@ -1312,7 +1314,7 @@ public class Geom3D {
 }
 
 \end{lstlisting}
-\subsection{Delaunay.cc 12/35}
+\subsubsection{Slow Delaunay triangulation (C++)}
 \begin{lstlisting}[language=C++]
 // Slow but simple Delaunay triangulation. Does not handle
 // degenerate cases (from O'Rourke, Computational Geometry in C)
@@ -1380,7 +1382,8 @@ int main()
 }
 
 \end{lstlisting}
-\subsection{Euclid.cc 13/35}
+\subsection{Numerical algorithms}
+\subsubsection{Number theoretic algorithms (modular, Chinese remainder, linear Diophantine) (C++)}
 \begin{lstlisting}[language=C++]
 // This is a collection of useful code for solving problems that
 // involve modular linear equations.  Note that all of the
@@ -1515,7 +1518,7 @@ int main() {
 }
 
 \end{lstlisting}
-\subsection{GaussJordan.cc 14/35}
+\subsubsection{Systems of linear equations, matrix inverse, determinant (C++)}
 \begin{lstlisting}[language=C++]
 // Gauss-Jordan elimination with full pivoting.
 //
@@ -1625,7 +1628,7 @@ int main() {
 }
 
 \end{lstlisting}
-\subsection{ReducedRowEchelonForm.cc 15/35}
+\subsubsection{Reduced row echelon form, matrix rank (C++)}
 \begin{lstlisting}[language=C++]
 // Reduced row echelon form via Gauss-Jordan elimination 
 // with partial pivoting.  This can be used for computing
@@ -1703,7 +1706,7 @@ int main() {
 }
 
 \end{lstlisting}
-\subsection{FFT\_new.cpp 16/35}
+\subsubsection{Fast Fourier transform (C++)}
 \begin{lstlisting}[language=C++]
 #include <cassert>
 #include <cstdio>
@@ -1841,7 +1844,7 @@ int main(void)
 }
 
 \end{lstlisting}
-\subsection{Simplex.cc 17/35}
+\subsubsection{Simplex algorithm (C++)}
 \begin{lstlisting}[language=C++]
 // Two-phase simplex algorithm for solving linear programs of the form
 //
@@ -1968,7 +1971,8 @@ int main() {
 }
 
 \end{lstlisting}
-\subsection{FastDijkstra.cc 18/35}
+\subsection{Graph algorithms}
+\subsubsection{Fast Dijkstra's algorithm (C++)}
 \begin{lstlisting}[language=C++]
 // Implementation of Dijkstra's algorithm using adjacency lists
 // and priority queue for efficiency.
@@ -2026,7 +2030,7 @@ int main(){
 }
 
 \end{lstlisting}
-\subsection{SCC.cc 19/35}
+\subsubsection{Strongly connected components (C)}
 \begin{lstlisting}[language=C++]
 #include<memory.h>
 struct edge{int e, nxt;};
@@ -2065,7 +2069,7 @@ void SCC()
   for(i=stk[0];i>=1;i--) if(v[stk[i]]){group_cnt++; fill_backward(stk[i]);}
 }
 \end{lstlisting}
-\subsection{EulerianPath.cc 20/35}
+\subsubsection{Eulerian Path (C++)}
 \begin{lstlisting}
 struct Edge;
 typedef list<Edge>::iterator iter;
@@ -2109,7 +2113,8 @@ void add_edge(int a, int b)
 }
 
 \end{lstlisting}
-\subsection{SuffixArray.cc 21/35}
+\subsection{Data structures}
+\subsubsection{Suffix arrays (C++)}
 \begin{lstlisting}[language=C++]
 // Suffix array construction in O(L log^2 L) time.  Routine for
 // computing the length of the longest common prefix of any two
@@ -2183,7 +2188,7 @@ int main() {
 }
 
 \end{lstlisting}
-\subsection{BIT.cc 22/35}
+\subsubsection{Binary Indexed Tree}
 \begin{lstlisting}[language=C++]
 #include <iostream>
 using namespace std;
@@ -2227,14 +2232,14 @@ int getind(int x) {
 }
 
 \end{lstlisting}
-\subsection{UnionFind.cc 23/35}
+\subsubsection{Union-Find Set (C/C++)}
 \begin{lstlisting}[language=C++]
 //union-find set: the vector/array contains the parent of each node
 int find(vector <int>& C, int x){return (C[x]==x) ? x : C[x]=find(C, C[x]);} //C++
 int find(int x){return (C[x]==x)?x:C[x]=find(C[x]);} //C
 
 \end{lstlisting}
-\subsection{KDTree.cc 24/35}
+\subsubsection{KD-tree (C++)}
 \begin{lstlisting}[language=C++]
 // -----------------------------------------------------------------
 // A straightforward, but probably sub-optimal KD-tree implmentation
@@ -2446,7 +2451,7 @@ int main()
 // --------------------------------------------------------------------------
 
 \end{lstlisting}
-\subsection{splay.cpp 25/35}
+\subsubsection{Splay Tree (C++)}
 \begin{lstlisting}[language=C++]
 #include <cstdio>
 #include <algorithm>
@@ -2599,7 +2604,7 @@ int main()
 }
 
 \end{lstlisting}
-\subsection{SegmentTreeLazy.java 26/35}
+\subsubsection{Lazy Segment Tree (Java)}
 \begin{lstlisting}[language=C++]
 public class SegmentTreeRangeUpdate {
   public long[] leaf;
@@ -2670,7 +2675,7 @@ public class SegmentTreeRangeUpdate {
 }
 
 \end{lstlisting}
-\subsection{LCA.cc 27/35}
+\subsubsection{Lowest Common Ancestor (C++)}
 \begin{lstlisting}[language=C++]
 const int max_nodes, log_max_nodes;
 int num_nodes, log_num_nodes, root;
@@ -2758,7 +2763,8 @@ int main(int argc,char* argv[])
 }
 
 \end{lstlisting}
-\subsection{LongestIncreasingSubsequence.cc 28/35}
+\subsection{Miscellaneous}
+\subsubsection{Longest increasing subsequence (C++)}
 \begin{lstlisting}[language=C++]
 // Given a list of numbers of length n, this routine extracts a 
 // longest increasing subsequence.
@@ -2810,7 +2816,7 @@ VI LongestIncreasingSubsequence(VI v) {
 }
 
 \end{lstlisting}
-\subsection{Dates.cc 29/35}
+\subsubsection{Dates (C++)}
 \begin{lstlisting}[language=C++]
 // Routines for performing computations on dates.  In these routines,
 // months are expressed as integers from 1 to 12, days are expressed
@@ -2869,7 +2875,7 @@ int main (int argc, char **argv){
     << day << endl;
 }
 \end{lstlisting}
-\subsection{LogLan.java 30/35}
+\subsubsection{Regular expressions (Java)}
 \begin{lstlisting}
 
 // Code which demonstrates the use of Java's regular expression libraries.
@@ -2962,7 +2968,7 @@ public class LogLan {
 }
 
 \end{lstlisting}
-\subsection{Primes.cc 31/35}
+\subsubsection{Prime numbers (C++)}
 \begin{lstlisting}[language=C++]
 // O(sqrt(x)) Exhaustive Primality Test
 #include <cmath>
@@ -3017,7 +3023,7 @@ bool IsPrimeSlow (LL x)
 //    The largest prime smaller than 1000000000000000000 is 999999999999999989.
 
 \end{lstlisting}
-\subsection{IO.cpp 32/35}
+\subsubsection{C++ input/output}
 \begin{lstlisting}[language=C++]
 #include <iostream>
 #include <iomanip>
@@ -3047,7 +3053,7 @@ int main()
 }
 
 \end{lstlisting}
-\subsection{KMP.cpp 33/35}
+\subsubsection{Knuth-Morris-Pratt (C++)}
 \begin{lstlisting}[language=C++]
 /*
 Searches for the string w in the string s (of length k). Returns the
@@ -3115,7 +3121,7 @@ int main()
 }
 
 \end{lstlisting}
-\subsection{LatLong.cpp 34/35}
+\subsubsection{Latitude/longitude}
 \begin{lstlisting}[language=C++]
 /*
 Converts from rectangular coordinates to latitude/longitude and vice
