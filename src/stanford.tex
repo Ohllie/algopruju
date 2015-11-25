@@ -1,5 +1,5 @@
-\subsection{Combinatorial optimization}
-\subsubsection{Sparse max-flow (C++)}
+\section{Combinatorial optimization}
+\subsection{Sparse max-flow (C++)}
 \begin{lstlisting}[language=C++]
 // Adjacency list implementation of Dinic's blocking flow algorithm.
 // This is very fast in practice, and only loses to push-relabel flow.
@@ -106,7 +106,7 @@ struct Dinic {
 };
 
 \end{lstlisting}
-\subsubsection{Min-cost max-flow (C++)}
+\subsection{Min-cost max-flow (C++)}
 \begin{lstlisting}[language=C++]
 // Implementation of min cost max flow algorithm using adjacency
 // matrix (Edmonds and Karp 1972).  This implementation keeps track of
@@ -210,7 +210,7 @@ struct MinCostMaxFlow {
 };
 
 \end{lstlisting}
-\subsubsection{Push-relabel max-flow (C++)}
+\subsection{Push-relabel max-flow (C++)}
 \begin{lstlisting}[language=C++]
 // Adjacency list implementation of FIFO push relabel maximum flow
 // with the gap relabeling heuristic.  This implementation is
@@ -330,7 +330,7 @@ struct PushRelabel {
 };
 
 \end{lstlisting}
-\subsubsection{Min-cost matching (C++)}
+\subsection{Min-cost matching (C++)}
 \begin{lstlisting}[language=C++]
 //////////////////////////////////////////////////////////////////////
 // Min cost bipartite matching via shortest augmenting paths
@@ -463,7 +463,7 @@ double MinCostMatching(const VVD &cost, VI &Lmate, VI &Rmate) {
 }
 
 \end{lstlisting}
-\subsubsection{Max bipartite matching (C++)}
+\subsection{Max bipartite matching (C++)}
 \begin{lstlisting}[language=C++]
 // This code performs maximum bipartite matching.
 //
@@ -508,7 +508,7 @@ int BipartiteMatching(const VVI &w, VI &mr, VI &mc) {
 }
 
 \end{lstlisting}
-\subsubsection{Global min cut (C++)}
+\subsection{Global min cut (C++)}
 \begin{lstlisting}[language=C++]
 // Adjacency matrix implementation of Stoer-Wagner min cut algorithm.
 //
@@ -566,7 +566,7 @@ pair<int, VI> GetMinCut(VVI &weights) {
 }
 
 \end{lstlisting}
-\subsubsection{Graph cut inference (C++)}
+\subsection{Graph cut inference (C++)}
 \begin{lstlisting}[language=C++]
 // Special-purpose {0,1} combinatorial optimization solver for
 // problems of the following by a reduction to graph cuts:
@@ -729,8 +729,8 @@ int main() {
 }
 
 \end{lstlisting}
-\subsection{Geometry}
-\subsubsection{Convex hull (C++)}
+\section{Geometry}
+\subsection{Convex hull (C++)}
 \begin{lstlisting}[language=C++]
 // Compute the 2D convex hull of a set of points using the monotone chain
 // algorithm.  Eliminate redundant points from the hull if REMOVE_REDUNDANT is 
@@ -802,7 +802,7 @@ void ConvexHull(vector<PT> &pts) {
 }
 
 \end{lstlisting}
-\subsubsection{Miscellaneous geometry (C++)}
+\subsection{Miscellaneous geometry (C++)}
 \begin{lstlisting}[language=C++]
 // C++ routines for computational geometry.
 
@@ -1106,215 +1106,7 @@ int main() {
   return 0;
 }
 \end{lstlisting}
-\subsubsection{Java geometry (Java)}
-\begin{lstlisting}
-// In this example, we read an input file containing three lines, each
-// containing an even number of doubles, separated by commas.  The first two
-// lines represent the coordinates of two polygons, given in counterclockwise 
-// (or clockwise) order, which we will call "A" and "B".  The last line 
-// contains a list of points, p[1], p[2], ...
-//
-// Our goal is to determine:
-//   (1) whether B - A is a single closed shape (as opposed to multiple shapes)
-//   (2) the area of B - A
-//   (3) whether each p[i] is in the interior of B - A
-//
-// INPUT:
-//   0 0 10 0 0 10
-//   0 0 10 10 10 0
-//   8 6
-//   5 1
-//
-// OUTPUT:
-//   The area is singular.
-//   The area is 25.0
-//   Point belongs to the area.
-//   Point does not belong to the area.
-
-import java.util.*;
-import java.awt.geom.*;
-import java.io.*;
-
-public class JavaGeometry {
-
-    // make an array of doubles from a string
-    static double[] readPoints(String s) {
-        String[] arr = s.trim().split("\\s++");
-        double[] ret = new double[arr.length];
-        for (int i = 0; i < arr.length; i++) ret[i] = Double.parseDouble(arr[i]);
-        return ret;
-    }
-
-    // make an Area object from the coordinates of a polygon
-    static Area makeArea(double[] pts) {
-        Path2D.Double p = new Path2D.Double();
-        p.moveTo(pts[0], pts[1]);
-        for (int i = 2; i < pts.length; i += 2) p.lineTo(pts[i], pts[i+1]);
-        p.closePath();
-        return new Area(p);        
-    }
-
-    // compute area of polygon
-    static double computePolygonArea(ArrayList<Point2D.Double> points) {
-        Point2D.Double[] pts = points.toArray(new Point2D.Double[points.size()]);  
-        double area = 0;
-        for (int i = 0; i < pts.length; i++){
-            int j = (i+1) % pts.length;
-            area += pts[i].x * pts[j].y - pts[j].x * pts[i].y;
-        }        
-        return Math.abs(area)/2;
-    }
-
-    // compute the area of an Area object containing several disjoint polygons
-    static double computeArea(Area area) {
-        double totArea = 0;
-        PathIterator iter = area.getPathIterator(null);
-        ArrayList<Point2D.Double> points = new ArrayList<Point2D.Double>();
-
-        while (!iter.isDone()) {
-            double[] buffer = new double[6];
-            switch (iter.currentSegment(buffer)) {
-            case PathIterator.SEG_MOVETO:
-            case PathIterator.SEG_LINETO:
-                points.add(new Point2D.Double(buffer[0], buffer[1]));
-                break;
-            case PathIterator.SEG_CLOSE:
-                totArea += computePolygonArea(points);
-                points.clear();
-                break;
-            }
-            iter.next();
-        }
-        return totArea;
-    }
-
-    // notice that the main() throws an Exception -- necessary to
-    // avoid wrapping the Scanner object for file reading in a 
-    // try { ... } catch block.
-    public static void main(String args[]) throws Exception {
-
-        Scanner scanner = new Scanner(new File("input.txt"));
-        // also,
-        //   Scanner scanner = new Scanner (System.in);
-
-        double[] pointsA = readPoints(scanner.nextLine());
-        double[] pointsB = readPoints(scanner.nextLine());
-        Area areaA = makeArea(pointsA);
-        Area areaB = makeArea(pointsB);
-        areaB.subtract(areaA);
-        // also,
-        //   areaB.exclusiveOr (areaA);
-        //   areaB.add (areaA);
-        //   areaB.intersect (areaA);
-        
-        // (1) determine whether B - A is a single closed shape (as 
-        //     opposed to multiple shapes)
-        boolean isSingle = areaB.isSingular();
-        // also,
-        //   areaB.isEmpty();
-
-        if (isSingle)
-            System.out.println("The area is singular.");
-        else
-            System.out.println("The area is not singular.");
-        
-        // (2) compute the area of B - A
-        System.out.println("The area is " + computeArea(areaB) + ".");
-        
-        // (3) determine whether each p[i] is in the interior of B - A
-        while (scanner.hasNextDouble()) {
-            double x = scanner.nextDouble();
-            assert(scanner.hasNextDouble());
-            double y = scanner.nextDouble();
-
-            if (areaB.contains(x,y)) {
-                System.out.println ("Point belongs to the area.");
-            } else {
-                System.out.println ("Point does not belong to the area.");
-            }
-        }
-
-        // Finally, some useful things we didn't use in this example:
-        //
-        //   Ellipse2D.Double ellipse = new Ellipse2D.Double (double x, double y, 
-        //                                                    double w, double h);
-        //
-        //     creates an ellipse inscribed in box with bottom-left corner (x,y)
-        //     and upper-right corner (x+y,w+h)
-        // 
-        //   Rectangle2D.Double rect = new Rectangle2D.Double (double x, double y, 
-        //                                                     double w, double h);
-        //
-        //     creates a box with bottom-left corner (x,y) and upper-right 
-        //     corner (x+y,w+h)
-        //
-        // Each of these can be embedded in an Area object (e.g., new Area (rect)).
-
-    }
-}
-
-\end{lstlisting}
-\subsubsection{3D geometry (Java)}
-\begin{lstlisting}[language=C++]
-public class Geom3D {
-  // distance from point (x, y, z) to plane aX + bY + cZ + d = 0
-  public static double ptPlaneDist(double x, double y, double z,
-      double a, double b, double c, double d) {
-    return Math.abs(a*x + b*y + c*z + d) / Math.sqrt(a*a + b*b + c*c);
-  }
-  
-  // distance between parallel planes aX + bY + cZ + d1 = 0 and
-  // aX + bY + cZ + d2 = 0
-  public static double planePlaneDist(double a, double b, double c,
-      double d1, double d2) {
-    return Math.abs(d1 - d2) / Math.sqrt(a*a + b*b + c*c);
-  }
-  
-  // distance from point (px, py, pz) to line (x1, y1, z1)-(x2, y2, z2)
-  // (or ray, or segment; in the case of the ray, the endpoint is the
-  // first point)
-  public static final int LINE = 0;
-  public static final int SEGMENT = 1;
-  public static final int RAY = 2;
-  public static double ptLineDistSq(double x1, double y1, double z1,
-      double x2, double y2, double z2, double px, double py, double pz,
-      int type) {
-    double pd2 = (x1-x2)*(x1-x2) + (y1-y2)*(y1-y2) + (z1-z2)*(z1-z2);
-    
-    double x, y, z;
-    if (pd2 == 0) {
-      x = x1;
-      y = y1;
-      z = z1;
-    } else {
-      double u = ((px-x1)*(x2-x1) + (py-y1)*(y2-y1) + (pz-z1)*(z2-z1)) / pd2;
-      x = x1 + u * (x2 - x1);
-      y = y1 + u * (y2 - y1);
-      z = z1 + u * (z2 - z1);
-      if (type != LINE && u < 0) {
-        x = x1;
-        y = y1;
-        z = z1;
-      }
-      if (type == SEGMENT && u > 1.0) {
-        x = x2;
-        y = y2;
-        z = z2;
-      }
-    }
-    
-    return (x-px)*(x-px) + (y-py)*(y-py) + (z-pz)*(z-pz);
-  }
-  
-  public static double ptLineDist(double x1, double y1, double z1,
-      double x2, double y2, double z2, double px, double py, double pz,
-      int type) {
-    return Math.sqrt(ptLineDistSq(x1, y1, z1, x2, y2, z2, px, py, pz, type));
-  }
-}
-
-\end{lstlisting}
-\subsubsection{Slow Delaunay triangulation (C++)}
+\subsection{Slow Delaunay triangulation (C++)}
 \begin{lstlisting}[language=C++]
 // Slow but simple Delaunay triangulation. Does not handle
 // degenerate cases (from O'Rourke, Computational Geometry in C)
@@ -1382,8 +1174,8 @@ int main()
 }
 
 \end{lstlisting}
-\subsection{Numerical algorithms}
-\subsubsection{Number theoretic algorithms (modular, Chinese remainder, linear Diophantine) (C++)}
+\section{Numerical algorithms}
+\subsection{Number theoretic algorithms (modular, Chinese remainder, linear Diophantine) (C++)}
 \begin{lstlisting}[language=C++]
 // This is a collection of useful code for solving problems that
 // involve modular linear equations.  Note that all of the
@@ -1518,7 +1310,7 @@ int main() {
 }
 
 \end{lstlisting}
-\subsubsection{Systems of linear equations, matrix inverse, determinant (C++)}
+\subsection{Systems of linear equations, matrix inverse, determinant (C++)}
 \begin{lstlisting}[language=C++]
 // Gauss-Jordan elimination with full pivoting.
 //
@@ -1628,7 +1420,7 @@ int main() {
 }
 
 \end{lstlisting}
-\subsubsection{Reduced row echelon form, matrix rank (C++)}
+\subsection{Reduced row echelon form, matrix rank (C++)}
 \begin{lstlisting}[language=C++]
 // Reduced row echelon form via Gauss-Jordan elimination 
 // with partial pivoting.  This can be used for computing
@@ -1706,7 +1498,7 @@ int main() {
 }
 
 \end{lstlisting}
-\subsubsection{Fast Fourier transform (C++)}
+\subsection{Fast Fourier transform (C++)}
 \begin{lstlisting}[language=C++]
 #include <cassert>
 #include <cstdio>
@@ -1844,7 +1636,7 @@ int main(void)
 }
 
 \end{lstlisting}
-\subsubsection{Simplex algorithm (C++)}
+\subsection{Simplex algorithm (C++)}
 \begin{lstlisting}[language=C++]
 // Two-phase simplex algorithm for solving linear programs of the form
 //
@@ -1971,8 +1763,8 @@ int main() {
 }
 
 \end{lstlisting}
-\subsection{Graph algorithms}
-\subsubsection{Fast Dijkstra's algorithm (C++)}
+\section{Graph algorithms}
+\subsection{Fast Dijkstra's algorithm (C++)}
 \begin{lstlisting}[language=C++]
 // Implementation of Dijkstra's algorithm using adjacency lists
 // and priority queue for efficiency.
@@ -2030,7 +1822,7 @@ int main(){
 }
 
 \end{lstlisting}
-\subsubsection{Strongly connected components (C)}
+\subsection{Strongly connected components (C)}
 \begin{lstlisting}[language=C++]
 #include<memory.h>
 struct edge{int e, nxt;};
@@ -2069,7 +1861,7 @@ void SCC()
   for(i=stk[0];i>=1;i--) if(v[stk[i]]){group_cnt++; fill_backward(stk[i]);}
 }
 \end{lstlisting}
-\subsubsection{Eulerian Path (C++)}
+\subsection{Eulerian Path (C++)}
 \begin{lstlisting}
 struct Edge;
 typedef list<Edge>::iterator iter;
@@ -2113,8 +1905,8 @@ void add_edge(int a, int b)
 }
 
 \end{lstlisting}
-\subsection{Data structures}
-\subsubsection{Suffix arrays (C++)}
+\section{Data structures}
+\subsection{Suffix arrays (C++)}
 \begin{lstlisting}[language=C++]
 // Suffix array construction in O(L log^2 L) time.  Routine for
 // computing the length of the longest common prefix of any two
@@ -2188,7 +1980,7 @@ int main() {
 }
 
 \end{lstlisting}
-\subsubsection{Binary Indexed Tree}
+\subsection{Binary Indexed Tree}
 \begin{lstlisting}[language=C++]
 #include <iostream>
 using namespace std;
@@ -2232,14 +2024,14 @@ int getind(int x) {
 }
 
 \end{lstlisting}
-\subsubsection{Union-Find Set (C/C++)}
+\subsection{Union-Find Set (C/C++)}
 \begin{lstlisting}[language=C++]
 //union-find set: the vector/array contains the parent of each node
 int find(vector <int>& C, int x){return (C[x]==x) ? x : C[x]=find(C, C[x]);} //C++
 int find(int x){return (C[x]==x)?x:C[x]=find(C[x]);} //C
 
 \end{lstlisting}
-\subsubsection{KD-tree (C++)}
+\subsection{KD-tree (C++)}
 \begin{lstlisting}[language=C++]
 // -----------------------------------------------------------------
 // A straightforward, but probably sub-optimal KD-tree implmentation
@@ -2451,7 +2243,7 @@ int main()
 // --------------------------------------------------------------------------
 
 \end{lstlisting}
-\subsubsection{Splay Tree (C++)}
+\subsection{Splay Tree (C++)}
 \begin{lstlisting}[language=C++]
 #include <cstdio>
 #include <algorithm>
@@ -2604,7 +2396,7 @@ int main()
 }
 
 \end{lstlisting}
-\subsubsection{Lazy Segment Tree (Java)}
+\subsection{Lazy Segment Tree (Java)}
 \begin{lstlisting}[language=C++]
 public class SegmentTreeRangeUpdate {
   public long[] leaf;
@@ -2675,7 +2467,7 @@ public class SegmentTreeRangeUpdate {
 }
 
 \end{lstlisting}
-\subsubsection{Lowest Common Ancestor (C++)}
+\subsection{Lowest Common Ancestor (C++)}
 \begin{lstlisting}[language=C++]
 const int max_nodes, log_max_nodes;
 int num_nodes, log_num_nodes, root;
@@ -2763,8 +2555,8 @@ int main(int argc,char* argv[])
 }
 
 \end{lstlisting}
-\subsection{Miscellaneous}
-\subsubsection{Longest increasing subsequence (C++)}
+\section{Miscellaneous}
+\subsection{Longest increasing subsequence (C++)}
 \begin{lstlisting}[language=C++]
 // Given a list of numbers of length n, this routine extracts a 
 // longest increasing subsequence.
@@ -2816,7 +2608,7 @@ VI LongestIncreasingSubsequence(VI v) {
 }
 
 \end{lstlisting}
-\subsubsection{Dates (C++)}
+\subsection{Dates (C++)}
 \begin{lstlisting}[language=C++]
 // Routines for performing computations on dates.  In these routines,
 // months are expressed as integers from 1 to 12, days are expressed
@@ -2875,7 +2667,7 @@ int main (int argc, char **argv){
     << day << endl;
 }
 \end{lstlisting}
-\subsubsection{Regular expressions (Java)}
+\subsection{Regular expressions (Java)}
 \begin{lstlisting}
 
 // Code which demonstrates the use of Java's regular expression libraries.
@@ -2968,7 +2760,7 @@ public class LogLan {
 }
 
 \end{lstlisting}
-\subsubsection{Prime numbers (C++)}
+\subsection{Prime numbers (C++)}
 \begin{lstlisting}[language=C++]
 // O(sqrt(x)) Exhaustive Primality Test
 #include <cmath>
@@ -3023,7 +2815,7 @@ bool IsPrimeSlow (LL x)
 //    The largest prime smaller than 1000000000000000000 is 999999999999999989.
 
 \end{lstlisting}
-\subsubsection{C++ input/output}
+\subsection{C++ input/output}
 \begin{lstlisting}[language=C++]
 #include <iostream>
 #include <iomanip>
@@ -3053,7 +2845,7 @@ int main()
 }
 
 \end{lstlisting}
-\subsubsection{Knuth-Morris-Pratt (C++)}
+\subsection{Knuth-Morris-Pratt (C++)}
 \begin{lstlisting}[language=C++]
 /*
 Searches for the string w in the string s (of length k). Returns the
@@ -3121,7 +2913,7 @@ int main()
 }
 
 \end{lstlisting}
-\subsubsection{Latitude/longitude}
+\subsection{Latitude/longitude}
 \begin{lstlisting}[language=C++]
 /*
 Converts from rectangular coordinates to latitude/longitude and vice
