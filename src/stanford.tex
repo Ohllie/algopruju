@@ -1106,74 +1106,6 @@ int main() {
   return 0;
 }
 \end{lstlisting}
-\subsection{Slow Delaunay triangulation (C++)}
-\begin{lstlisting}[language=C++]
-// Slow but simple Delaunay triangulation. Does not handle
-// degenerate cases (from O'Rourke, Computational Geometry in C)
-//
-// Running time: O(n^4)
-//
-// INPUT:    x[] = x-coordinates
-//           y[] = y-coordinates
-//
-// OUTPUT:   triples = a vector containing m triples of indices
-//                     corresponding to triangle vertices
-
-#include<vector>
-using namespace std;
-
-typedef double T;
-
-struct triple {
-    int i, j, k;
-    triple() {}
-    triple(int i, int j, int k) : i(i), j(j), k(k) {}
-};
-
-vector<triple> delaunayTriangulation(vector<T>& x, vector<T>& y) {
-  int n = x.size();
-  vector<T> z(n);
-  vector<triple> ret;
-
-  for (int i = 0; i < n; i++)
-      z[i] = x[i] * x[i] + y[i] * y[i];
-
-  for (int i = 0; i < n-2; i++) {
-      for (int j = i+1; j < n; j++) {
-    for (int k = i+1; k < n; k++) {
-        if (j == k) continue;
-        double xn = (y[j]-y[i])*(z[k]-z[i]) - (y[k]-y[i])*(z[j]-z[i]);
-        double yn = (x[k]-x[i])*(z[j]-z[i]) - (x[j]-x[i])*(z[k]-z[i]);
-        double zn = (x[j]-x[i])*(y[k]-y[i]) - (x[k]-x[i])*(y[j]-y[i]);
-        bool flag = zn < 0;
-        for (int m = 0; flag && m < n; m++)
-      flag = flag && ((x[m]-x[i])*xn + 
-          (y[m]-y[i])*yn + 
-          (z[m]-z[i])*zn <= 0);
-        if (flag) ret.push_back(triple(i, j, k));
-    }
-      }
-  }
-  return ret;
-}
-
-int main()
-{
-    T xs[]={0, 0, 1, 0.9};
-    T ys[]={0, 1, 0, 0.9};
-    vector<T> x(&xs[0], &xs[4]), y(&ys[0], &ys[4]);
-    vector<triple> tri = delaunayTriangulation(x, y);
-    
-    //expected: 0 1 3
-    //          0 3 2
-    
-    int i;
-    for(i = 0; i < tri.size(); i++)
-        printf("%d %d %d\n", tri[i].i, tri[i].j, tri[i].k);
-    return 0;
-}
-
-\end{lstlisting}
 \section{Numerical algorithms}
 \subsection{Number theoretic algorithms (modular, Chinese remainder, linear Diophantine) (C++)}
 \begin{lstlisting}[language=C++]
@@ -2046,51 +1978,37 @@ int find(int x){return (C[x]==x)?x:C[x]=find(C[x]);} //C
 //
 // Sonny Chan, Stanford University, April 2009
 // -----------------------------------------------------------------
-
 #include <iostream>
 #include <vector>
 #include <limits>
 #include <cstdlib>
-
 using namespace std;
-
 // number type for coordinates, and its maximum value
 typedef long long ntype;
 const ntype sentry = numeric_limits<ntype>::max();
-
 // point structure for 2D-tree, can be extended to 3D
 struct point {
     ntype x, y;
     point(ntype xx = 0, ntype yy = 0) : x(xx), y(yy) {}
 };
-
-bool operator==(const point &a, const point &b)
-{
+bool operator==(const point &a, const point &b) {
     return a.x == b.x && a.y == b.y;
 }
-
 // sorts points on x-coordinate
-bool on_x(const point &a, const point &b)
-{
+bool on_x(const point &a, const point &b) {
     return a.x < b.x;
 }
-
 // sorts points on y-coordinate
-bool on_y(const point &a, const point &b)
-{
+bool on_y(const point &a, const point &b) {
     return a.y < b.y;
 }
-
 // squared distance between points
-ntype pdist2(const point &a, const point &b)
-{
+ntype pdist2(const point &a, const point &b) {
     ntype dx = a.x-b.x, dy = a.y-b.y;
     return dx*dx + dy*dy;
 }
-
 // bounding box for a set of points
-struct bbox
-{
+struct bbox {
     ntype x0, x1, y0, y1;
     
     bbox() : x0(sentry), x1(-sentry), y0(sentry), y1(-sentry) {}
@@ -2122,10 +2040,8 @@ struct bbox
         }
     }
 };
-
 // stores a single node of the kd-tree, either internal or leaf
-struct kdnode 
-{
+struct kdnode {
     bool leaf;      // true if this is a leaf node (has one point)
     point pt;       // the single point of this is a leaf
     bbox bound;     // bounding box for set of points in children
@@ -2169,10 +2085,8 @@ struct kdnode
         }
     }
 };
-
 // simple kd-tree class to hold the tree and handle queries
-struct kdtree
-{
+struct kdtree {
     kdnode *root;
     
     // constructs a kd-tree from a points (copied here, as it sorts them)
@@ -2184,8 +2098,7 @@ struct kdtree
     ~kdtree() { delete root; }
     
     // recursive search method returns squared distance to nearest point
-    ntype search(kdnode *node, const point &p)
-    {
+    ntype search(kdnode *node, const point &p) {
         if (node->leaf) {
             // commented special case tells a point not to find itself
 //            if (p == node->pt) return sentry;
@@ -2217,49 +2130,35 @@ struct kdtree
         return search(root, p);
     }
 };
-
-// --------------------------------------------------------------------------
-// some basic test code here
-
-int main()
-{
+int main() {
     // generate some random points for a kd-tree
     vector<point> vp;
     for (int i = 0; i < 100000; ++i) {
         vp.push_back(point(rand()%100000, rand()%100000));
     }
     kdtree tree(vp);
-    
     // query some points
     for (int i = 0; i < 10; ++i) {
         point q(rand()%100000, rand()%100000);
         cout << "Closest squared distance to (" << q.x << ", " << q.y << ")"
              << " is " << tree.nearest(q) << endl;
-    }    
-
+    }
     return 0;
 }
-
-// --------------------------------------------------------------------------
-
 \end{lstlisting}
 \subsection{Splay Tree (C++)}
 \begin{lstlisting}[language=C++]
 #include <cstdio>
 #include <algorithm>
 using namespace std;
-
 const int N_MAX = 130010;
 const int oo = 0x3f3f3f3f;
-struct Node
-{
+struct Node {
   Node *ch[2], *pre;
   int val, size;
   bool isTurned;
 } nodePool[N_MAX], *null, *root;
-
-Node *allocNode(int val)
-{
+Node *allocNode(int val) {
   static int freePos = 0;
   Node *x = &nodePool[freePos ++];
   x->val = val, x->isTurned = false;
@@ -2267,22 +2166,16 @@ Node *allocNode(int val)
   x->size = 1;
   return x;
 }
-
-inline void update(Node *x)
-{
+inline void update(Node *x) {
   x->size = x->ch[0]->size + x->ch[1]->size + 1;
 }
-
-inline void makeTurned(Node *x)
-{
+inline void makeTurned(Node *x) {
   if(x == null)
     return;
   swap(x->ch[0], x->ch[1]);
   x->isTurned ^= 1;
 }
-
-inline void pushDown(Node *x)
-{
+inline void pushDown(Node *x) {
   if(x->isTurned)
   {
     makeTurned(x->ch[0]);
@@ -2290,9 +2183,7 @@ inline void pushDown(Node *x)
     x->isTurned ^= 1;
   }
 }
-
-inline void rotate(Node *x, int c)
-{
+inline void rotate(Node *x, int c) {
   Node *y = x->pre;
   x->pre = y->pre;
   if(y->pre != null)
@@ -2305,9 +2196,7 @@ inline void rotate(Node *x, int c)
   if(y == root)
     root = x;
 }
-
-void splay(Node *x, Node *p)
-{
+void splay(Node *x, Node *p) {
   while(x->pre != p)
   {
     if(x->pre->pre == p)
@@ -2333,12 +2222,9 @@ void splay(Node *x, Node *p)
   }
   update(x);
 }
-
-void select(int k, Node *fa)
-{
+void select(int k, Node *fa) {
   Node *now = root;
-  while(1)
-  {
+  while(1) {
     pushDown(now);
     int tmp = now->ch[0]->size + 1;
     if(tmp == k)
@@ -2350,9 +2236,7 @@ void select(int k, Node *fa)
   }
   splay(now, fa);
 }
-
-Node *makeTree(Node *p, int l, int r)
-{
+Node *makeTree(Node *p, int l, int r) {
   if(l > r)
     return null;
   int mid = (l + r) / 2;
@@ -2363,9 +2247,7 @@ Node *makeTree(Node *p, int l, int r)
   update(x);
   return x;
 }
-
-int main()
-{
+int main() {
   int n, m;
   null = allocNode(0);
   null->size = 0;
@@ -2373,13 +2255,10 @@ int main()
   root->ch[1] = allocNode(oo);
   root->ch[1]->pre = root;
   update(root);
-
   scanf("%d%d", &n, &m);
   root->ch[1]->ch[0] = makeTree(root->ch[1], 1, n);
   splay(root->ch[1]->ch[0], null);
-
-  while(m --)
-  {
+  while(m --) {
     int a, b;
     scanf("%d%d", &a, &b);
     a ++, b ++;
@@ -2387,95 +2266,19 @@ int main()
     select(b + 1, root);
     makeTurned(root->ch[1]->ch[0]);
   }
-
-  for(int i = 1; i <= n; i ++)
-  {
+  for(int i = 1; i <= n; i ++) {
     select(i + 1, null);
     printf("%d ", root->val);
   }
 }
-
-\end{lstlisting}
-\subsection{Lazy Segment Tree (Java)}
-\begin{lstlisting}[language=C++]
-public class SegmentTreeRangeUpdate {
-  public long[] leaf;
-  public long[] update;
-  public int origSize;
-  public SegmentTreeRangeUpdate(int[] list) {
-    origSize = list.length;
-    leaf = new long[4*list.length];
-    update = new long[4*list.length];
-    build(1,0,list.length-1,list);
-  }
-  public void build(int curr, int begin, int end, int[] list) {
-    if(begin == end)
-      leaf[curr] = list[begin];
-    else  {
-      int mid = (begin+end)/2;
-      build(2 * curr, begin, mid, list);
-      build(2 * curr + 1, mid+1, end, list);
-      leaf[curr] = leaf[2*curr] + leaf[2*curr+1];
-    }
-  }
-  public void update(int begin, int end, int val) {
-    update(1,0,origSize-1,begin,end,val);
-  }
-  public void update(int curr,  int tBegin, int tEnd, int begin, int end, int val)  {
-    if(tBegin >= begin && tEnd <= end)
-      update[curr] += val;
-    else  {
-      leaf[curr] += (Math.min(end,tEnd)-Math.max(begin,tBegin)+1) * val;
-      int mid = (tBegin+tEnd)/2;
-      if(mid >= begin && tBegin <= end)
-        update(2*curr, tBegin, mid, begin, end, val);
-      if(tEnd >= begin && mid+1 <= end)
-        update(2*curr+1, mid+1, tEnd, begin, end, val);
-    }
-  }
-  public long query(int begin, int end) {
-    return query(1,0,origSize-1,begin,end);
-  }
-  public long query(int curr, int tBegin, int tEnd, int begin, int end) {
-    if(tBegin >= begin && tEnd <= end)  {
-      if(update[curr] != 0) {
-        leaf[curr] += (tEnd-tBegin+1) * update[curr];
-        if(2*curr < update.length){
-          update[2*curr] += update[curr];
-          update[2*curr+1] += update[curr];
-        }
-        update[curr] = 0;
-      }
-      return leaf[curr];
-    }
-    else  {
-      leaf[curr] += (tEnd-tBegin+1) * update[curr];
-      if(2*curr < update.length){
-        update[2*curr] += update[curr];
-        update[2*curr+1] += update[curr];
-      }
-      update[curr] = 0;
-      int mid = (tBegin+tEnd)/2;
-      long ret = 0;
-      if(mid >= begin && tBegin <= end)
-        ret += query(2*curr, tBegin, mid, begin, end);
-      if(tEnd >= begin && mid+1 <= end)
-        ret += query(2*curr+1, mid+1, tEnd, begin, end);
-      return ret;
-    }
-  }
-}
-
 \end{lstlisting}
 \subsection{Lowest Common Ancestor (C++)}
 \begin{lstlisting}[language=C++]
 const int max_nodes, log_max_nodes;
 int num_nodes, log_num_nodes, root;
-
 vector<int> children[max_nodes];  // children[i] contains the children of node i
 int A[max_nodes][log_max_nodes+1];  // A[i][j] is the 2^j-th ancestor of node i, or -1 if that ancestor does not exist
 int L[max_nodes];     // L[i] is the distance between node i and the root
-
 // floor of the binary logarithm of n
 int lb(unsigned int n)
 {
@@ -2489,28 +2292,22 @@ int lb(unsigned int n)
     if (n >= 1<< 1) {           p +=  1; }
     return p;
 }
-
 void DFS(int i, int l)
 {
     L[i] = l;
     for(int j = 0; j < children[i].size(); j++)
   DFS(children[i][j], l+1);
 }
-
-int LCA(int p, int q)
-{
+int LCA(int p, int q) {
     // ensure node p is at least as deep as node q
     if(L[p] < L[q])
   swap(p, q);
-
     // "binary search" for the ancestor of node p situated on the same level as q
     for(int i = log_num_nodes; i >= 0; i--)
   if(L[p] - (1<<i) >= L[q])
       p = A[p][i];
-    
     if(p == q)
   return p;
-
     // "binary search" for the LCA
     for(int i = log_num_nodes; i >= 0; i--)
   if(A[p][i] != -1 && A[p][i] != A[q][i])
@@ -2518,15 +2315,12 @@ int LCA(int p, int q)
       p = A[p][i];
       q = A[q][i];
   }
-    
     return A[p][0];
 }
-
 int main(int argc,char* argv[])
 {
     // read num_nodes, the total number of nodes
     log_num_nodes=lb(num_nodes);
-    
     for(int i = 0; i < num_nodes; i++)
     {
   int p;
@@ -2538,7 +2332,6 @@ int main(int argc,char* argv[])
   else
       root = i;
     }
-
     // precompute A using dynamic programming
     for(int j = 1; j <= log_num_nodes; j++)
   for(int i = 0; i < num_nodes; i++)
@@ -2546,42 +2339,30 @@ int main(int argc,char* argv[])
     A[i][j] = A[A[i][j-1]][j-1];
       else
     A[i][j] = -1;
-
     // precompute L
-    DFS(root, 0);
-
-    
+    DFS(root, 0);   
     return 0;
 }
-
 \end{lstlisting}
 \section{Miscellaneous}
 \subsection{Longest increasing subsequence (C++)}
 \begin{lstlisting}[language=C++]
 // Given a list of numbers of length n, this routine extracts a 
 // longest increasing subsequence.
-//
 // Running time: O(n log n)
-//
 //   INPUT: a vector of integers
 //   OUTPUT: a vector containing the longest increasing subsequence
-
 #include <iostream>
 #include <vector>
 #include <algorithm>
-
 using namespace std;
-
 typedef vector<int> VI;
 typedef pair<int,int> PII;
 typedef vector<PII> VPII;
-
 #define STRICTLY_INCREASNG
-
 VI LongestIncreasingSubsequence(VI v) {
   VPII best;
   VI dad(v.size(), -1);
-  
   for (int i = 0; i < v.size(); i++) {
 #ifdef STRICTLY_INCREASNG
     PII item = make_pair(v[i], 0);
@@ -2599,14 +2380,12 @@ VI LongestIncreasingSubsequence(VI v) {
       *it = item;
     }
   }
-  
   VI ret;
   for (int i = best.back().second; i >= 0; i = dad[i])
     ret.push_back(v[i]);
   reverse(ret.begin(), ret.end());
   return ret;
 }
-
 \end{lstlisting}
 \subsection{Dates (C++)}
 \begin{lstlisting}[language=C++]
@@ -2614,14 +2393,10 @@ VI LongestIncreasingSubsequence(VI v) {
 // months are expressed as integers from 1 to 12, days are expressed
 // as integers from 1 to 31, and years are expressed as 4-digit
 // integers.
-
 #include <iostream>
 #include <string>
-
 using namespace std;
-
 string dayOfWeek[] = {"Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"};
-
 // converts Gregorian date to integer (Julian day number)
 int dateToInt (int m, int d, int y){  
   return 
@@ -2630,11 +2405,9 @@ int dateToInt (int m, int d, int y){
     3 * ((y + 4900 + (m - 14) / 12) / 100) / 4 + 
     d - 32075;
 }
-
 // converts integer (Julian day number) to Gregorian date: month/day/year
 void intToDate (int jd, int &m, int &d, int &y){
-  int x, n, i, j;
-  
+  int x, n, i, j; 
   x = jd + 68569;
   n = 4 * x / 146097;
   x -= (146097 * n + 3) / 4;
@@ -2646,119 +2419,20 @@ void intToDate (int jd, int &m, int &d, int &y){
   m = j + 2 - 12 * x;
   y = 100 * (n - 49) + i + x;
 }
-
 // converts integer (Julian day number) to day of week
 string intToDay (int jd){
   return dayOfWeek[jd % 7];
 }
-
 int main (int argc, char **argv){
   int jd = dateToInt (3, 24, 2004);
   int m, d, y;
   intToDate (jd, m, d, y);
   string day = intToDay (jd);
-  
-  // expected output:
-  //    2453089
-  //    3/24/2004
-  //    Wed
+  // expected output: 2453089 3/24/2004 Wed
   cout << jd << endl
     << m << "/" << d << "/" << y << endl
     << day << endl;
 }
-\end{lstlisting}
-\subsection{Regular expressions (Java)}
-\begin{lstlisting}
-
-// Code which demonstrates the use of Java's regular expression libraries.
-// This is a solution for 
-//
-//   Loglan: a logical language http://acm.uva.es/p/v1/134.html
-//
-// In this problem, we are given a regular language, whose rules can be
-// inferred directly from the code.  For each sentence in the input, we must
-// determine whether the sentence matches the regular expression or not.  The
-// code consists of (1) building the regular expression (which is fairly
-// complex) and (2) using the regex to match sentences.
-
-import java.util.*;
-import java.util.regex.*;
-
-public class LogLan {
-
-    public static String BuildRegex (){
-  String space = " +";
-
-  String A = "([aeiou])";
-  String C = "([a-z&&[^aeiou]])";
-  String MOD = "(g" + A + ")";
-  String BA = "(b" + A + ")";
-  String DA = "(d" + A + ")";
-  String LA = "(l" + A + ")";
-  String NAM = "([a-z]*" + C + ")";
-  String PREDA = "(" + C + C + A + C + A + "|" + C + A + C + C + A + ")";
-
-  String predstring = "(" + PREDA + "(" + space + PREDA + ")*)";
-  String predname = "(" + LA + space + predstring + "|" + NAM + ")";
-  String preds = "(" + predstring + "(" + space + A + space + predstring + ")*)";
-  String predclaim = "(" + predname + space + BA + space + preds + "|" + DA + space +
-            preds + ")";
-  String verbpred = "(" + MOD + space + predstring + ")";
-  String statement = "(" + predname + space + verbpred + space + predname + "|" + 
-            predname + space + verbpred + ")";
-  String sentence = "(" + statement + "|" + predclaim + ")";
-
-  return "^" + sentence + "$";
-    }
-
-    public static void main (String args[]){
-
-  String regex = BuildRegex();
-  Pattern pattern = Pattern.compile (regex);
-  
-  Scanner s = new Scanner(System.in);
-  while (true) {
-
-            // In this problem, each sentence consists of multiple lines, where the last 
-      // line is terminated by a period.  The code below reads lines until
-      // encountering a line whose final character is a '.'.  Note the use of
-            //
-            //    s.length() to get length of string
-            //    s.charAt() to extract characters from a Java string
-            //    s.trim() to remove whitespace from the beginning and end of Java string
-            //
-            // Other useful String manipulation methods include
-            //
-            //    s.compareTo(t) < 0 if s < t, lexicographically
-            //    s.indexOf("apple") returns index of first occurrence of "apple" in s
-            //    s.lastIndexOf("apple") returns index of last occurrence of "apple" in s
-            //    s.replace(c,d) replaces occurrences of character c with d
-            //    s.startsWith("apple) returns (s.indexOf("apple") == 0)
-            //    s.toLowerCase() / s.toUpperCase() returns a new lower/uppercased string
-            //
-            //    Integer.parseInt(s) converts s to an integer (32-bit)
-            //    Long.parseLong(s) converts s to a long (64-bit)
-            //    Double.parseDouble(s) converts s to a double
-            
-      String sentence = "";
-      while (true){
-    sentence = (sentence + " " + s.nextLine()).trim();
-    if (sentence.equals("#")) return;
-    if (sentence.charAt(sentence.length()-1) == '.') break;   
-      }
-
-            // now, we remove the period, and match the regular expression
-
-            String removed_period = sentence.substring(0, sentence.length()-1).trim();
-      if (pattern.matcher (removed_period).find()){
-    System.out.println ("Good");
-      } else {
-    System.out.println ("Bad!");
-      }
-  }
-    }
-}
-
 \end{lstlisting}
 \subsection{Prime numbers (C++)}
 \begin{lstlisting}[language=C++]
@@ -2766,205 +2440,50 @@ public class LogLan {
 #include <cmath>
 #define EPS 1e-7
 typedef long long LL;
-bool IsPrimeSlow (LL x)
-{
+bool IsPrimeSlow (LL x) {
   if(x<=1) return false;
   if(x<=3) return true;
   if (!(x%2) || !(x%3)) return false;
   LL s=(LL)(sqrt((double)(x))+EPS);
-  for(LL i=5;i<=s;i+=6)
-  {
+  for(LL i=5;i<=s;i+=6) {
     if (!(x%i) || !(x%(i+2))) return false;
   }
   return true;
 }
-// Primes less than 1000:
-//      2     3     5     7    11    13    17    19    23    29    31    37
-//     41    43    47    53    59    61    67    71    73    79    83    89
-//     97   101   103   107   109   113   127   131   137   139   149   151
-//    157   163   167   173   179   181   191   193   197   199   211   223
-//    227   229   233   239   241   251   257   263   269   271   277   281
-//    283   293   307   311   313   317   331   337   347   349   353   359
-//    367   373   379   383   389   397   401   409   419   421   431   433
-//    439   443   449   457   461   463   467   479   487   491   499   503
-//    509   521   523   541   547   557   563   569   571   577   587   593
-//    599   601   607   613   617   619   631   641   643   647   653   659
-//    661   673   677   683   691   701   709   719   727   733   739   743
-//    751   757   761   769   773   787   797   809   811   821   823   827
-//    829   839   853   857   859   863   877   881   883   887   907   911
-//    919   929   937   941   947   953   967   971   977   983   991   997
-
-// Other primes:
-//    The largest prime smaller than 10 is 7.
-//    The largest prime smaller than 100 is 97.
-//    The largest prime smaller than 1000 is 997.
-//    The largest prime smaller than 10000 is 9973.
-//    The largest prime smaller than 100000 is 99991.
-//    The largest prime smaller than 1000000 is 999983.
-//    The largest prime smaller than 10000000 is 9999991.
-//    The largest prime smaller than 100000000 is 99999989.
-//    The largest prime smaller than 1000000000 is 999999937.
-//    The largest prime smaller than 10000000000 is 9999999967.
-//    The largest prime smaller than 100000000000 is 99999999977.
-//    The largest prime smaller than 1000000000000 is 999999999989.
-//    The largest prime smaller than 10000000000000 is 9999999999971.
-//    The largest prime smaller than 100000000000000 is 99999999999973.
-//    The largest prime smaller than 1000000000000000 is 999999999999989.
-//    The largest prime smaller than 10000000000000000 is 9999999999999937.
-//    The largest prime smaller than 100000000000000000 is 99999999999999997.
-//    The largest prime smaller than 1000000000000000000 is 999999999999999989.
-
-\end{lstlisting}
-\subsection{C++ input/output}
-\begin{lstlisting}[language=C++]
-#include <iostream>
-#include <iomanip>
-
-using namespace std;
-
-int main()
-{
-    // Ouput a specific number of digits past the decimal point,
-    // in this case 5    
-    cout.setf(ios::fixed); cout << setprecision(5);
-    cout << 100.0/7.0 << endl;
-    cout.unsetf(ios::fixed);
-    
-    // Output the decimal point and trailing zeros
-    cout.setf(ios::showpoint);
-    cout << 100.0 << endl;
-    cout.unsetf(ios::showpoint);
-    
-    // Output a '+' before positive values
-    cout.setf(ios::showpos);
-    cout << 100 << " " << -100 << endl;
-    cout.unsetf(ios::showpos);
-    
-    // Output numerical values in hexadecimal
-    cout << hex << 100 << " " << 1000 << " " << 10000 << dec << endl;
-}
-
-\end{lstlisting}
-\subsection{Knuth-Morris-Pratt (C++)}
-\begin{lstlisting}[language=C++]
-/*
-Searches for the string w in the string s (of length k). Returns the
-0-based index of the first match (k if no match is found). Algorithm
-runs in O(k) time.
-*/
-
-#include <iostream>
-#include <string>
-#include <vector>
-
-using namespace std;
-
-typedef vector<int> VI;
-
-void buildTable(string& w, VI& t)
-{
-  t = VI(w.length());  
-  int i = 2, j = 0;
-  t[0] = -1; t[1] = 0;
-  
-  while(i < w.length())
-  {
-    if(w[i-1] == w[j]) { t[i] = j+1; i++; j++; }
-    else if(j > 0) j = t[j];
-    else { t[i] = 0; i++; }
-  }
-}
-
-int KMP(string& s, string& w)
-{
-  int m = 0, i = 0;
-  VI t;
-  
-  buildTable(w, t);  
-  while(m+i < s.length())
-  {
-    if(w[i] == s[m+i])
-    {
-      i++;
-      if(i == w.length()) return m;
-    }
-    else
-    {
-      m += i-t[i];
-      if(i > 0) i = t[i];
-    }
-  }  
-  return s.length();
-}
-
-int main()
-{
-  string a = (string) "The example above illustrates the general technique for assembling "+
-    "the table with a minimum of fuss. The principle is that of the overall search: "+
-    "most of the work was already done in getting to the current position, so very "+
-    "little needs to be done in leaving it. The only minor complication is that the "+
-    "logic which is correct late in the string erroneously gives non-proper "+
-    "substrings at the beginning. This necessitates some initialization code.";
-  
-  string b = "table";
-  
-  int p = KMP(a, b);
-  cout << p << ": " << a.substr(p, b.length()) << " " << b << endl;
-}
-
 \end{lstlisting}
 \subsection{Latitude/longitude}
 \begin{lstlisting}[language=C++]
-/*
-Converts from rectangular coordinates to latitude/longitude and vice
-versa. Uses degrees (not radians).
-*/
-
+/* Converts from rectangular coordinates to latitude/longitude and vice
+versa. Uses degrees (not radians). */
 #include <iostream>
 #include <cmath>
-
 using namespace std;
-
-struct ll
-{
+struct ll {
   double r, lat, lon;
 };
-
-struct rect
-{
+struct rect {
   double x, y, z;
 };
-
-ll convert(rect& P)
-{
+ll convert(rect& P) {
   ll Q;
   Q.r = sqrt(P.x*P.x+P.y*P.y+P.z*P.z);
   Q.lat = 180/M_PI*asin(P.z/Q.r);
   Q.lon = 180/M_PI*acos(P.x/sqrt(P.x*P.x+P.y*P.y));
-  
   return Q;
 }
-
-rect convert(ll& Q)
-{
+rect convert(ll& Q) {
   rect P;
   P.x = Q.r*cos(Q.lon*M_PI/180)*cos(Q.lat*M_PI/180);
   P.y = Q.r*sin(Q.lon*M_PI/180)*cos(Q.lat*M_PI/180);
   P.z = Q.r*sin(Q.lat*M_PI/180);
-  
   return P;
 }
-
-int main()
-{
+int main() {
   rect A;
   ll B;
-  
   A.x = -1.0; A.y = 2.0; A.z = -3.0;
-  
   B = convert(A);
   cout << B.r << " " << B.lat << " " << B.lon << endl;
-  
   A = convert(B);
   cout << A.x << " " << A.y << " " << A.z << endl;
 }
