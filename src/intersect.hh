@@ -6,15 +6,18 @@ struct Pt {
 };
 
 int orientation(Pt p1, Pt p2, Pt p3) {
-  int cross = (p2.x - p1.x) * (p3.y - p1.y) - (p2.y - p1.y) * (p3.x - p1.x);
+  int cross = (p2.x - p1.x) * (p3.y - p1.y) - (p2.y - p1.y) * (p3.x 
+- p1.x);
   if (cross == 0)
     return -1;
   return cross > 0;
 }
 
-// Given collinear points a,b,p check if point p is on the line segment ab
+// Given collinear points a,b,p check if point p is on the line 
+segment ab
 bool point_on_seg(Pt a, Pt b, Pt p) {
-  return p.x <= max(a.x, b.x) && p.x >= min(a.x, b.x) && p.y <= max(a.y, b.y) &&
+  return p.x <= max(a.x, b.x) && p.x >= min(a.x, b.x) && p.y <= 
+max(a.y, b.y) &&
          p.y >= min(a.y, b.y);
 }
 
@@ -25,7 +28,8 @@ bool do_intersect(Pt a, Pt b, Pt c, Pt d) {
   int o3 = orientation(c, d, a);
   int o4 = orientation(c, d, b);
 
-  return ((o1 != o2 && o3 != o4) || (o1 == -1 && point_on_seg(a, b, c)) ||
+  return ((o1 != o2 && o3 != o4) || (o1 == -1 && point_on_seg(a, b, 
+c)) ||
           (o2 == -1 && point_on_seg(a, b, d)) ||
           (o3 == -1 && point_on_seg(c, d, a)) ||
           (o4 == -1 && point_on_seg(c, d, b)));

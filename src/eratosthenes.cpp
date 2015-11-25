@@ -1,7 +1,8 @@
 #include <cstdlib>
 #include <cmath>
 
-// Returns an array isPrime of length n+1 such that isPrime[x] = 1 if x is prime
+// Returns an array isPrime of length n+1 such that isPrime[x] = 1 
+if x is prime
 // and 0 else
 char *eratosthenes(int n) {
 

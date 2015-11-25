@@ -14,10 +14,12 @@ public:
 
   std::map<int, UF_element *> idToElement;
   void makeSet(int id); // Creates a new set with identifier id
-  int find(int id);     // Returns the identifier of the set that contains the
+  int find(int id);     // Returns the identifier of the set that 
+contains the
                         // parameter id
   void doUnion(int id_1,
-               int id_2); // Merges the two sets given by the identifiers
+               int id_2); // Merges the two sets given by the 
+identifiers
   int getSize(int id);    // Returns the size of the set
 
   ~UnionFind();
@@ -58,4 +60,5 @@ void UnionFind::doUnion(int id_1, int id_2) {
   }
 }
 
-int UnionFind::getSize(int id) { return idToElement.at(find(id))->size; }
+int UnionFind::getSize(int id) { return 
+idToElement.at(find(id))->size; }

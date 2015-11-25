@@ -15,6 +15,7 @@ int main() {
     assert(mod_exp(2, i, 101) == mod_exp_naive(2, i, 101));
     assert(mod_exp(i, i, 101) == mod_exp_naive(i, i, 101));
   }
-  assert(mod_exp(3, 32982391, 101) == mod_exp_naive(3, 32982391, 101));
+  assert(mod_exp(3, 32982391, 101) == mod_exp_naive(3, 32982391, 
+101));
   std::cout << "All tests OK" << std::endl;
 }

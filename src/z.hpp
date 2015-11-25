@@ -1,7 +1,8 @@
 #pragma once
 #include "boilerplate.hpp"
 
-/// Return vector containing for each position i the length of the longest
+/// Return vector containing for each position i the length of the 
+longest
 /// substring that is also a prefix of the string.
 vector<int> zAlgorithm(const vector<int> &S) {
   int n = S.size();

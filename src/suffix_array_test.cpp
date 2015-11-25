@@ -19,7 +19,8 @@ vector<int> get_suffix_array_naive(string s) {
 }
 
 int main() {
-  string s = "abcabcabcabcabcabcabcabcabcabczzzjsjksdfkjasdfhkajsdfhkabcabckajs"
+  string s = 
+"abcabcabcabcabcabcabcabcabcabczzzjsjksdfkjasdfhkajsdfhkabcabckajs"
              "dhfkajsdhfkajshdf";
   vector<int> svec(s.begin(), s.end());
   assert(get_suffix_array(svec) == get_suffix_array_naive(s));

@@ -14,7 +14,8 @@ unsigned long upper_power_of_two(unsigned long v) {
 }
 
 // Segmenttipuu summa-operaatiolle
-// * olettaa ei-negatiiviset arvot bucketeihin => monotonisuus => get_index()
+// * olettaa ei-negatiiviset arvot bucketeihin => monotonisuus => 
+get_index()
 // * ctoriin buckettien lkm.
 
 class BinarySumTree {
@@ -26,7 +27,8 @@ public:
   BinarySumTree(size_t n) : m_tree(), m_sindex(0) { resize(n); }
 
   void resize(size_t n) {
-    std::vector<size_t> lastrow(m_tree.begin() + m_sindex, m_tree.end());
+    std::vector<size_t> lastrow(m_tree.begin() + m_sindex, 
+m_tree.end());
     assert(n > 0);
     m_sindex = upper_power_of_two(n) - 1;
     m_tree.assign(m_sindex * 2 + 1, 0);
