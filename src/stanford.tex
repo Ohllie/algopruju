@@ -3,52 +3,41 @@
 \begin{lstlisting}[language=C++]
 // Adjacency list implementation of Dinic's blocking flow algorithm.
 // This is very fast in practice, and only loses to push-relabel flow.
-//
 // Running time:
 //     O(|V|^2 |E|)
-//
 // INPUT:
 //     - graph, constructed using AddEdge()
 //     - source and sink
-//
 // OUTPUT:
 //     - maximum flow value
 //     - To obtain actual flow values, look at edges with capacity > 0
 //       (zero capacity edges are residual edges).
-
 #include <iostream>
 #include <vector>
-
 using namespace std;
 typedef long long LL;
-
 struct Edge {
   int from, to, cap, flow, index;
   Edge(int from, int to, int cap, int flow, int index) :
     from(from), to(to), cap(cap), flow(flow), index(index) {}
   LL rcap() { return cap - flow; }
 };
-
 struct Dinic {
   int N;
   vector<vector<Edge> > G;
   vector<vector<Edge *> > Lf;
   vector<int> layer;
   vector<int> Q;
-  
   Dinic(int N) : N(N), G(N), Q(N) {}
-  
   void AddEdge(int from, int to, int cap) {
     if (from == to) return;
     G[from].push_back(Edge(from, to, cap, 0, G[to].size()));
     G[to].push_back(Edge(to, from, 0, 0, G[from].size() - 1));
   }
-
   LL BlockingFlow(int s, int t) {
     layer.clear(); layer.resize(N, -1);
     layer[s] = 0;
     Lf.clear(); Lf.resize(N);
-    
     int head = 0, tail = 0;
     Q[tail++] = s;
     while (head < tail) {
@@ -65,7 +54,6 @@ struct Dinic {
       }
     }
     if (layer[t] == -1) return 0;
-
     LL totflow = 0;
     vector<Edge *> P;
     while (!Lf[s].empty()) {
@@ -96,7 +84,6 @@ struct Dinic {
     }
     return totflow;
   }
-
   LL GetMaxFlow(int s, int t) {
     LL totflow = 0;
     while (LL flow = BlockingFlow(s, t))
@@ -104,7 +91,6 @@ struct Dinic {
     return totflow;
   }
 };
-
 \end{lstlisting}
 \subsection{Min-cost max-flow (C++)}
 \begin{lstlisting}[language=C++]
@@ -125,13 +111,10 @@ struct Dinic {
 // OUTPUT:
 //     - (maximum flow value, minimum cost value)
 //     - To obtain the actual flow, look at positive values only.
-
 #include <cmath>
 #include <vector>
 #include <iostream>
-
 using namespace std;
-
 typedef vector<int> VI;
 typedef vector<VI> VVI;
 typedef long long L;
@@ -139,25 +122,20 @@ typedef vector<L> VL;
 typedef vector<VL> VVL;
 typedef pair<int, int> PII;
 typedef vector<PII> VPII;
-
 const L INF = numeric_limits<L>::max() / 4;
-
 struct MinCostMaxFlow {
   int N;
   VVL cap, flow, cost;
   VI found;
   VL dist, pi, width;
   VPII dad;
-
   MinCostMaxFlow(int N) : 
     N(N), cap(N, VL(N)), flow(N, VL(N)), cost(N, VL(N)), 
     found(N), dist(N), pi(N), width(N), dad(N) {}
-  
   void AddEdge(int from, int to, L cap, L cost) {
     this->cap[from][to] = cap;
     this->cost[from][to] = cost;
   }
-  
   void Relax(int s, int k, L cap, L cost, int dir) {
     L val = dist[s] + pi[s] - pi[k] + cost;
     if (cap && val < dist[k]) {
@@ -166,14 +144,12 @@ struct MinCostMaxFlow {
       width[k] = min(cap, width[s]);
     }
   }
-
   L Dijkstra(int s, int t) {
     fill(found.begin(), found.end(), false);
     fill(dist.begin(), dist.end(), INF);
     fill(width.begin(), width.end(), 0);
     dist[s] = 0;
     width[s] = INF;
-    
     while (s != -1) {
       int best = -1;
       found[s] = true;
@@ -185,12 +161,10 @@ struct MinCostMaxFlow {
       }
       s = best;
     }
-
     for (int k = 0; k < N; k++)
       pi[k] = min(pi[k] + dist[k], INF);
     return width[t];
   }
-
   pair<L, L> GetMaxFlow(int s, int t) {
     L totflow = 0, totcost = 0;
     while (L amt = Dijkstra(s, t)) {
@@ -208,7 +182,6 @@ struct MinCostMaxFlow {
     return make_pair(totflow, totcost);
   }
 };
-
 \end{lstlisting}
 \subsection{Push-relabel max-flow (C++)}
 \begin{lstlisting}[language=C++]
@@ -218,54 +191,42 @@ struct MinCostMaxFlow {
 // random problems with 10000 vertices and 1000000 edges in a few
 // seconds, though it is possible to construct test cases that
 // achieve the worst-case.
-//
 // Running time:
 //     O(|V|^3)
-//
 // INPUT: 
 //     - graph, constructed using AddEdge()
 //     - source
 //     - sink
-//
 // OUTPUT:
 //     - maximum flow value
 //     - To obtain the actual flow values, look at all edges with
 //       capacity > 0 (zero capacity edges are residual edges).
-
 #include <cmath>
 #include <vector>
 #include <iostream>
 #include <queue>
-
 using namespace std;
-
 typedef long long LL;
-
 struct Edge {
   int from, to, cap, flow, index;
   Edge(int from, int to, int cap, int flow, int index) :
     from(from), to(to), cap(cap), flow(flow), index(index) {}
 };
-
 struct PushRelabel {
   int N;
   vector<vector<Edge> > G;
   vector<LL> excess;
   vector<int> dist, active, count;
   queue<int> Q;
-
   PushRelabel(int N) : N(N), G(N), excess(N), dist(N), active(N), count(2*N) {}
-
   void AddEdge(int from, int to, int cap) {
     G[from].push_back(Edge(from, to, cap, 0, G[to].size()));
     if (from == to) G[from].back().index++;
     G[to].push_back(Edge(to, from, 0, 0, G[from].size() - 1));
   }
-
   void Enqueue(int v) { 
     if (!active[v] && excess[v] > 0) { active[v] = true; Q.push(v); } 
   }
-
   void Push(Edge &e) {
     int amt = int(min(excess[e.from], LL(e.cap - e.flow)));
     if (dist[e.from] <= dist[e.to] || amt == 0) return;
@@ -275,7 +236,6 @@ struct PushRelabel {
     excess[e.from] -= amt;
     Enqueue(e.to);
   }
-  
   void Gap(int k) {
     for (int v = 0; v < N; v++) {
       if (dist[v] < k) continue;
@@ -285,7 +245,6 @@ struct PushRelabel {
       Enqueue(v);
     }
   }
-
   void Relabel(int v) {
     count[dist[v]]--;
     dist[v] = 2*N;
@@ -295,7 +254,6 @@ struct PushRelabel {
     count[dist[v]]++;
     Enqueue(v);
   }
-
   void Discharge(int v) {
     for (int i = 0; excess[v] > 0 && i < G[v].size(); i++) Push(G[v][i]);
     if (excess[v] > 0) {
@@ -305,7 +263,6 @@ struct PushRelabel {
   Relabel(v);
     }
   }
-
   LL GetMaxFlow(int s, int t) {
     count[0] = N-1;
     count[N] = 1;
@@ -322,13 +279,11 @@ struct PushRelabel {
       active[v] = false;
       Discharge(v);
     }
-    
     LL totflow = 0;
     for (int i = 0; i < G[s].size(); i++) totflow += G[s][i].flow;
     return totflow;
   }
 };
-
 \end{lstlisting}
 \subsection{Min-cost matching (C++)}
 \begin{lstlisting}[language=C++]
@@ -352,16 +307,12 @@ struct PushRelabel {
 #include <cstdio>
 #include <cmath>
 #include <vector>
-
 using namespace std;
-
 typedef vector<double> VD;
 typedef vector<VD> VVD;
 typedef vector<int> VI;
-
 double MinCostMatching(const VVD &cost, VI &Lmate, VI &Rmate) {
   int n = int(cost.size());
-
   // construct dual feasible solution
   VD u(n);
   VD v(n);
@@ -373,7 +324,6 @@ double MinCostMatching(const VVD &cost, VI &Lmate, VI &Rmate) {
     v[j] = cost[0][j] - u[0];
     for (int i = 1; i < n; i++) v[j] = min(v[j], cost[i][j] - u[i]);
   }
-  
   // construct primal solution satisfying complementary slackness
   Lmate = VI(n, -1);
   Rmate = VI(n, -1);
@@ -389,11 +339,9 @@ double MinCostMatching(const VVD &cost, VI &Lmate, VI &Rmate) {
       }
     }
   }
-  
   VD dist(n);
   VI dad(n);
   VI seen(n);
-  
   // repeat until primal solution is feasible
   while (mated < n) {
     
@@ -432,7 +380,6 @@ double MinCostMatching(const VVD &cost, VI &Lmate, VI &Rmate) {
   }
       }
     }
-    
     // update dual variables
     for (int k = 0; k < n; k++) {
       if (k == j || !seen[k]) continue;
@@ -441,7 +388,6 @@ double MinCostMatching(const VVD &cost, VI &Lmate, VI &Rmate) {
       u[i] -= dist[k] - dist[j];
     }
     u[s] += dist[j];
-    
     // augment along path
     while (dad[j] >= 0) {
       const int d = dad[j];
@@ -451,17 +397,13 @@ double MinCostMatching(const VVD &cost, VI &Lmate, VI &Rmate) {
     }
     Rmate[j] = s;
     Lmate[s] = j;
-    
     mated++;
   }
-  
   double value = 0;
   for (int i = 0; i < n; i++)
     value += cost[i][Lmate[i]];
-  
   return value;
 }
-
 \end{lstlisting}
 \subsection{Max bipartite matching (C++)}
 \begin{lstlisting}[language=C++]
@@ -475,12 +417,9 @@ double MinCostMatching(const VVD &cost, VI &Lmate, VI &Rmate) {
 //           function returns number of matches made
 
 #include <vector>
-
 using namespace std;
-
 typedef vector<int> VI;
 typedef vector<VI> VVI;
-
 bool FindMatch(int i, const VVI &w, VI &mr, VI &mc, VI &seen) {
   for (int j = 0; j < w[i].size(); j++) {
     if (w[i][j] && !seen[j]) {
@@ -494,11 +433,9 @@ bool FindMatch(int i, const VVI &w, VI &mr, VI &mc, VI &seen) {
   }
   return false;
 }
-
 int BipartiteMatching(const VVI &w, VI &mr, VI &mc) {
   mr = VI(w.size(), -1);
   mc = VI(w[0].size(), -1);
-  
   int ct = 0;
   for (int i = 0; i < w.size(); i++) {
     VI seen(w[0].size());
@@ -506,7 +443,6 @@ int BipartiteMatching(const VVI &w, VI &mr, VI &mc) {
   }
   return ct;
 }
-
 \end{lstlisting}
 \subsection{Global min cut (C++)}
 \begin{lstlisting}[language=C++]
@@ -520,23 +456,17 @@ int BipartiteMatching(const VVI &w, VI &mr, VI &mc) {
 //
 // OUTPUT:
 //     - (min cut value, nodes in half of min cut)
-
 #include <cmath>
 #include <vector>
 #include <iostream>
-
 using namespace std;
-
 typedef vector<int> VI;
 typedef vector<VI> VVI;
-
 const int INF = 1000000000;
-
 pair<int, VI> GetMinCut(VVI &weights) {
   int N = weights.size();
   VI used(N), cut, best_cut;
   int best_weight = -1;
-  
   for (int phase = N-1; phase >= 0; phase--) {
     VI w = weights[0];
     VI added = used;
@@ -564,7 +494,6 @@ pair<int, VI> GetMinCut(VVI &weights) {
   }
   return make_pair(best_weight, best_cut);
 }
-
 \end{lstlisting}
 \subsection{Graph cut inference (C++)}
 \begin{lstlisting}[language=C++]
@@ -593,27 +522,20 @@ pair<int, VI> GetMinCut(VVI &weights) {
 // To use this code, create a GraphCutInference object, and call the
 // DoInference() method.  To perform maximization instead of minimization,
 // ensure that #define MAXIMIZATION is enabled.
-
 #include <vector>
 #include <iostream>
-
 using namespace std;
-
 typedef vector<int> VI;
 typedef vector<VI> VVI;
 typedef vector<VVI> VVVI;
 typedef vector<VVVI> VVVVI;
-
 const int INF = 1000000000;
-
 // comment out following line for minimization
 #define MAXIMIZATION
-
 struct GraphCutInference {
   int N;
   VVI cap, flow;
   VI reached;
-  
   int Augment(int s, int t, int a) {
     reached[s] = 1;
     if (s == t) return a; 
@@ -629,7 +551,6 @@ struct GraphCutInference {
     }
     return 0;
   }
-  
   int GetMaxFlow(int s, int t) {
     N = cap.size();
     flow = VVI(N, VI(N));
@@ -642,13 +563,11 @@ struct GraphCutInference {
     }
     return totflow;
   }
-  
   int DoInference(const VVVVI &phi, const VVI &psi, VI &x) {
     int M = phi.size();
     cap = VVI(M+2, VI(M+2));
     VI b(M);
     int c = 0;
-
     for (int i = 0; i < M; i++) {
       b[i] += psi[i][1] - psi[i][0];
       c += psi[i][0];
@@ -660,7 +579,6 @@ struct GraphCutInference {
   c += phi[i][j][0][0];
       }
     }
-    
 #ifdef MAXIMIZATION
     for (int i = 0; i < M; i++) {
       for (int j = i+1; j < M; j++) 
@@ -669,7 +587,6 @@ struct GraphCutInference {
     }
     c *= -1;
 #endif
-
     for (int i = 0; i < M; i++) {
       if (b[i] >= 0) {
   cap[M][i] = b[i];
@@ -678,7 +595,6 @@ struct GraphCutInference {
   c += b[i];
       }
     }
-
     int score = GetMaxFlow(M, M+1);
     fill(reached.begin(), reached.end(), 0);
     Augment(M, M+1, INF);
@@ -688,22 +604,16 @@ struct GraphCutInference {
 #ifdef MAXIMIZATION
     score *= -1;
 #endif
-
     return score;
   }
-
 };
-
 int main() {
-
   // solver for "Cat vs. Dog" from NWERC 2008
-  
   int numcases;
   cin >> numcases;
   for (int caseno = 0; caseno < numcases; caseno++) {
     int c, d, v;
     cin >> c >> d >> v;
-
     VVVVI phi(c+d, VVVI(c+d, VVI(2, VI(2))));
     VVI psi(c+d, VI(2));
     for (int i = 0; i < v; i++) {
@@ -719,15 +629,11 @@ int main() {
   phi[c+u][v][1][1]++;
       }
     }
-    
     GraphCutInference graph;
     VI x;
     cout << graph.DoInference(phi, psi, x) << endl;
   }
-
-  return 0;
 }
-
 \end{lstlisting}
 \section{Geometry}
 \subsection{Convex hull (C++)}
@@ -741,17 +647,13 @@ int main() {
 //   INPUT:   a vector of input points, unordered.
 //   OUTPUT:  a vector of points in the convex hull, counterclockwise, starting
 //            with bottommost/leftmost point
-
 #include <cstdio>
 #include <cassert>
 #include <vector>
 #include <algorithm>
 #include <cmath>
-
 using namespace std;
-
 #define REMOVE_REDUNDANT
-
 typedef double T;
 const T EPS = 1e-7;
 struct PT { 
@@ -761,16 +663,13 @@ struct PT {
   bool operator<(const PT &rhs) const { return make_pair(y,x) < make_pair(rhs.y,rhs.x); }
   bool operator==(const PT &rhs) const { return make_pair(y,x) == make_pair(rhs.y,rhs.x); }
 };
-
 T cross(PT p, PT q) { return p.x*q.y-p.y*q.x; }
 T area2(PT a, PT b, PT c) { return cross(a,b) + cross(b,c) + cross(c,a); }
-
 #ifdef REMOVE_REDUNDANT
 bool between(const PT &a, const PT &b, const PT &c) {
   return (fabs(area2(a,b,c)) < EPS && (a.x-b.x)*(c.x-b.x) <= 0 && (a.y-b.y)*(c.y-b.y) <= 0);
 }
 #endif
-
 void ConvexHull(vector<PT> &pts) {
   sort(pts.begin(), pts.end());
   pts.erase(unique(pts.begin(), pts.end()), pts.end());
@@ -783,7 +682,6 @@ void ConvexHull(vector<PT> &pts) {
   }
   pts = dn;
   for (int i = (int) up.size() - 2; i >= 1; i--) pts.push_back(up[i]);
-  
 #ifdef REMOVE_REDUNDANT
   if (pts.size() <= 2) return;
   dn.clear();
@@ -800,22 +698,17 @@ void ConvexHull(vector<PT> &pts) {
   pts = dn;
 #endif
 }
-
 \end{lstlisting}
 \subsection{Miscellaneous geometry (C++)}
 \begin{lstlisting}[language=C++]
 // C++ routines for computational geometry.
-
 #include <iostream>
 #include <vector>
 #include <cmath>
 #include <cassert>
-
 using namespace std;
-
 double INF = 1e100;
 double EPS = 1e-12;
-
 struct PT { 
   double x, y; 
   PT() {}
@@ -826,27 +719,23 @@ struct PT {
   PT operator * (double c)     const { return PT(x*c,   y*c  ); }
   PT operator / (double c)     const { return PT(x/c,   y/c  ); }
 };
-
 double dot(PT p, PT q)     { return p.x*q.x+p.y*q.y; }
 double dist2(PT p, PT q)   { return dot(p-q,p-q); }
 double cross(PT p, PT q)   { return p.x*q.y-p.y*q.x; }
 ostream &operator<<(ostream &os, const PT &p) {
   os << "(" << p.x << "," << p.y << ")"; 
 }
-
 // rotate a point CCW or CW around the origin
 PT RotateCCW90(PT p)   { return PT(-p.y,p.x); }
 PT RotateCW90(PT p)    { return PT(p.y,-p.x); }
 PT RotateCCW(PT p, double t) { 
   return PT(p.x*cos(t)-p.y*sin(t), p.x*sin(t)+p.y*cos(t)); 
 }
-
 // project point c onto line through a and b
 // assuming a != b
 PT ProjectPointLine(PT a, PT b, PT c) {
   return a + (b-a)*dot(c-a, b-a)/dot(b-a, b-a);
 }
-
 // project point c onto line segment through a and b
 PT ProjectPointSegment(PT a, PT b, PT c) {
   double r = dot(b-a,b-a);
@@ -856,30 +745,25 @@ PT ProjectPointSegment(PT a, PT b, PT c) {
   if (r > 1) return b;
   return a + (b-a)*r;
 }
-
 // compute distance from c to segment between a and b
 double DistancePointSegment(PT a, PT b, PT c) {
   return sqrt(dist2(c, ProjectPointSegment(a, b, c)));
 }
-
 // compute distance between point (x,y,z) and plane ax+by+cz=d
 double DistancePointPlane(double x, double y, double z,
                           double a, double b, double c, double d)
 {
   return fabs(a*x+b*y+c*z-d)/sqrt(a*a+b*b+c*c);
 }
-
 // determine if lines from a to b and c to d are parallel or collinear
 bool LinesParallel(PT a, PT b, PT c, PT d) { 
   return fabs(cross(b-a, c-d)) < EPS; 
 }
-
 bool LinesCollinear(PT a, PT b, PT c, PT d) { 
   return LinesParallel(a, b, c, d)
       && fabs(cross(a-b, a-c)) < EPS
       && fabs(cross(c-d, c-a)) < EPS; 
 }
-
 // determine if line segment from a to b intersects with 
 // line segment from c to d
 bool SegmentsIntersect(PT a, PT b, PT c, PT d) {
@@ -894,7 +778,6 @@ bool SegmentsIntersect(PT a, PT b, PT c, PT d) {
   if (cross(a-c, d-c) * cross(b-c, d-c) > 0) return false;
   return true;
 }
-
 // compute intersection of line passing through a and b
 // with line passing through c and d, assuming that unique
 // intersection exists; for segment intersection, check if
@@ -904,14 +787,12 @@ PT ComputeLineIntersection(PT a, PT b, PT c, PT d) {
   assert(dot(b, b) > EPS && dot(d, d) > EPS);
   return a + b*cross(c, d)/cross(b, d);
 }
-
 // compute center of circle given three points
 PT ComputeCircleCenter(PT a, PT b, PT c) {
   b=(a+b)/2;
   c=(a+c)/2;
   return ComputeLineIntersection(b, b+RotateCW90(a-b), c, c+RotateCW90(a-c));
 }
-
 // determine if point is in a possibly non-convex polygon (by William
 // Randolph Franklin); returns 1 for strictly interior points, 0 for
 // strictly exterior points, and 0 or 1 for the remaining points.
@@ -930,7 +811,6 @@ bool PointInPolygon(const vector<PT> &p, PT q) {
   }
   return c;
 }
-
 // determine if point is on the boundary of a polygon
 bool PointOnPolygon(const vector<PT> &p, PT q) {
   for (int i = 0; i < p.size(); i++)
@@ -938,7 +818,6 @@ bool PointOnPolygon(const vector<PT> &p, PT q) {
       return true;
     return false;
 }
-
 // compute intersection of line through points a and b with
 // circle centered at c with radius r > 0
 vector<PT> CircleLineIntersection(PT a, PT b, PT c, double r) {
@@ -955,7 +834,6 @@ vector<PT> CircleLineIntersection(PT a, PT b, PT c, double r) {
     ret.push_back(c+a+b*(-B-sqrt(D))/A);
   return ret;
 }
-
 // compute intersection of circle centered at a with radius r
 // with circle centered at b with radius R
 vector<PT> CircleCircleIntersection(PT a, PT b, double r, double R) {
@@ -970,7 +848,6 @@ vector<PT> CircleCircleIntersection(PT a, PT b, double r, double R) {
     ret.push_back(a+v*x - RotateCCW90(v)*y);
   return ret;
 }
-
 // This code computes the area or centroid of a (possibly nonconvex)
 // polygon, assuming that the coordinates are listed in a clockwise or
 // counterclockwise fashion.  Note that the centroid is often known as
@@ -983,11 +860,9 @@ double ComputeSignedArea(const vector<PT> &p) {
   }
   return area / 2.0;
 }
-
 double ComputeArea(const vector<PT> &p) {
   return fabs(ComputeSignedArea(p));
 }
-
 PT ComputeCentroid(const vector<PT> &p) {
   PT c(0,0);
   double scale = 6.0 * ComputeSignedArea(p);
@@ -997,7 +872,6 @@ PT ComputeCentroid(const vector<PT> &p) {
   }
   return c / scale;
 }
-
 // tests whether or not a given polygon (in CW or CCW order) is simple
 bool IsSimple(const vector<PT> &p) {
   for (int i = 0; i < p.size(); i++) {
@@ -1011,71 +885,55 @@ bool IsSimple(const vector<PT> &p) {
   }
   return true;
 }
-
 int main() {
-  
   // expected: (-5,2)
   cerr << RotateCCW90(PT(2,5)) << endl;
-  
   // expected: (5,-2)
   cerr << RotateCW90(PT(2,5)) << endl;
-  
   // expected: (-5,2)
   cerr << RotateCCW(PT(2,5),M_PI/2) << endl;
-  
   // expected: (5,2)
   cerr << ProjectPointLine(PT(-5,-2), PT(10,4), PT(3,7)) << endl;
-  
   // expected: (5,2) (7.5,3) (2.5,1)
   cerr << ProjectPointSegment(PT(-5,-2), PT(10,4), PT(3,7)) << " "
        << ProjectPointSegment(PT(7.5,3), PT(10,4), PT(3,7)) << " "
        << ProjectPointSegment(PT(-5,-2), PT(2.5,1), PT(3,7)) << endl;
-  
   // expected: 6.78903
   cerr << DistancePointPlane(4,-4,3,2,-2,5,-8) << endl;
-  
   // expected: 1 0 1
   cerr << LinesParallel(PT(1,1), PT(3,5), PT(2,1), PT(4,5)) << " "
        << LinesParallel(PT(1,1), PT(3,5), PT(2,0), PT(4,5)) << " "
        << LinesParallel(PT(1,1), PT(3,5), PT(5,9), PT(7,13)) << endl;
-  
   // expected: 0 0 1
   cerr << LinesCollinear(PT(1,1), PT(3,5), PT(2,1), PT(4,5)) << " "
        << LinesCollinear(PT(1,1), PT(3,5), PT(2,0), PT(4,5)) << " "
        << LinesCollinear(PT(1,1), PT(3,5), PT(5,9), PT(7,13)) << endl;
-  
   // expected: 1 1 1 0
   cerr << SegmentsIntersect(PT(0,0), PT(2,4), PT(3,1), PT(-1,3)) << " "
        << SegmentsIntersect(PT(0,0), PT(2,4), PT(4,3), PT(0,5)) << " "
        << SegmentsIntersect(PT(0,0), PT(2,4), PT(2,-1), PT(-2,1)) << " "
        << SegmentsIntersect(PT(0,0), PT(2,4), PT(5,5), PT(1,7)) << endl;
-  
   // expected: (1,2)
   cerr << ComputeLineIntersection(PT(0,0), PT(2,4), PT(3,1), PT(-1,3)) << endl;
-  
   // expected: (1,1)
   cerr << ComputeCircleCenter(PT(-3,4), PT(6,1), PT(4,5)) << endl;
-  
   vector<PT> v; 
   v.push_back(PT(0,0));
   v.push_back(PT(5,0));
   v.push_back(PT(5,5));
   v.push_back(PT(0,5));
-  
   // expected: 1 1 1 0 0
   cerr << PointInPolygon(v, PT(2,2)) << " "
        << PointInPolygon(v, PT(2,0)) << " "
        << PointInPolygon(v, PT(0,2)) << " "
        << PointInPolygon(v, PT(5,2)) << " "
        << PointInPolygon(v, PT(2,5)) << endl;
-  
   // expected: 0 1 1 1 1
   cerr << PointOnPolygon(v, PT(2,2)) << " "
        << PointOnPolygon(v, PT(2,0)) << " "
        << PointOnPolygon(v, PT(0,2)) << " "
        << PointOnPolygon(v, PT(5,2)) << " "
        << PointOnPolygon(v, PT(2,5)) << endl;
-  
   // expected: (1,6)
   //           (5,4) (4,5)
   //           blank line
@@ -1094,7 +952,6 @@ int main() {
   for (int i = 0; i < u.size(); i++) cerr << u[i] << " "; cerr << endl;
   u = CircleCircleIntersection(PT(1,1), PT(4.5,4.5), 5, sqrt(2.0)/2.0);
   for (int i = 0; i < u.size(); i++) cerr << u[i] << " "; cerr << endl;
-  
   // area should be 5.0
   // centroid should be (1.1666666, 1.166666)
   PT pa[] = { PT(0,0), PT(5,0), PT(1,1), PT(0,5) };
@@ -1102,7 +959,6 @@ int main() {
   PT c = ComputeCentroid(p);
   cerr << "Area: " << ComputeArea(p) << endl;
   cerr << "Centroid: " << c << endl;
-  
   return 0;
 }
 \end{lstlisting}
@@ -1112,33 +968,26 @@ int main() {
 // This is a collection of useful code for solving problems that
 // involve modular linear equations.  Note that all of the
 // algorithms described here work on nonnegative integers.
-
 #include <iostream>
 #include <vector>
 #include <algorithm>
-
 using namespace std;
-
 typedef vector<int> VI;
 typedef pair<int,int> PII;
-
 // return a % b (positive value)
 int mod(int a, int b) {
   return ((a%b)+b)%b;
 }
-
 // computes gcd(a,b)
 int gcd(int a, int b) {
   int tmp;
   while(b){a%=b; tmp=a; a=b; b=tmp;}
   return a;
 }
-
 // computes lcm(a,b)
 int lcm(int a, int b) {
   return a/gcd(a,b)*b;
 }
-
 // returns d = gcd(a,b); finds x,y such that d = ax + by
 int extended_euclid(int a, int b, int &x, int &y) {  
   int xx = y = 0;
@@ -1151,7 +1000,6 @@ int extended_euclid(int a, int b, int &x, int &y) {
   }
   return a;
 }
-
 // finds all solutions to ax = b (mod n)
 VI modular_linear_equation_solver(int a, int b, int n) {
   int x, y;
@@ -1164,7 +1012,6 @@ VI modular_linear_equation_solver(int a, int b, int n) {
   }
   return solutions;
 }
-
 // computes b such that ab = 1 (mod n), returns -1 on failure
 int mod_inverse(int a, int n) {
   int x, y;
@@ -1172,7 +1019,6 @@ int mod_inverse(int a, int n) {
   if (d > 1) return -1;
   return mod(x,n);
 }
-
 // Chinese remainder theorem (special case): find z such that
 // z % x = a, z % y = b.  Here, z is unique modulo M = lcm(x,y).
 // Return (z,M).  On failure, M = -1.
@@ -1182,7 +1028,6 @@ PII chinese_remainder_theorem(int x, int a, int y, int b) {
   if (a%d != b%d) return make_pair(0, -1);
   return make_pair(mod(s*b*x+t*a*y,x*y)/d, x*y/d);
 }
-
 // Chinese remainder theorem: find z such that
 // z % x[i] = a[i] for all i.  Note that the solution is
 // unique modulo M = lcm_i (x[i]).  Return (z,M).  On 
@@ -1196,7 +1041,6 @@ PII chinese_remainder_theorem(const VI &x, const VI &a) {
   }
   return ret;
 }
-
 // computes x and y such that ax + by = c; on failure, x = y =-1
 void linear_diophantine(int a, int b, int c, int &x, int &y) {
   int d = gcd(a,b);
@@ -1207,25 +1051,19 @@ void linear_diophantine(int a, int b, int c, int &x, int &y) {
     y = (c-a*x)/b;
   }
 }
-
 int main() {
-  
   // expected: 2
   cout << gcd(14, 30) << endl;
-  
   // expected: 2 -2 1
   int x, y;
   int d = extended_euclid(14, 30, x, y);
   cout << d << " " << x << " " << y << endl;
-  
   // expected: 95 45
   VI sols = modular_linear_equation_solver(14, 30, 100);
   for (int i = 0; i < (int) sols.size(); i++) cout << sols[i] << " "; 
   cout << endl;
-  
   // expected: 8
   cout << mod_inverse(8, 9) << endl;
-  
   // expected: 23 56
   //           11 12
   int xs[] = {3, 5, 7, 4, 6};
@@ -1234,13 +1072,10 @@ int main() {
   cout << ret.first << " " << ret.second << endl;
   ret = chinese_remainder_theorem (VI(xs+3, xs+5), VI(as+3, as+5));
   cout << ret.first << " " << ret.second << endl;
-  
   // expected: 5 -15
   linear_diophantine(7, 2, 5, x, y);
   cout << x << " " << y << endl;
-
 }
-
 \end{lstlisting}
 \subsection{Systems of linear equations, matrix inverse, determinant (C++)}
 \begin{lstlisting}[language=C++]
@@ -1259,26 +1094,20 @@ int main() {
 // OUTPUT:   X      = an nxm matrix (stored in b[][])
 //           A^{-1} = an nxn matrix (stored in a[][])
 //           returns determinant of a[][]
-
 #include <iostream>
 #include <vector>
 #include <cmath>
-
 using namespace std;
-
 const double EPS = 1e-10;
-
 typedef vector<int> VI;
 typedef double T;
 typedef vector<T> VT;
 typedef vector<VT> VVT;
-
 T GaussJordan(VVT &a, VVT &b) {
   const int n = a.size();
   const int m = b[0].size();
   VI irow(n), icol(n), ipiv(n);
   T det = 1;
-
   for (int i = 0; i < n; i++) {
     int pj = -1, pk = -1;
     for (int j = 0; j < n; j++) if (!ipiv[j])
@@ -1311,7 +1140,6 @@ T GaussJordan(VVT &a, VVT &b) {
 
   return det;
 }
-
 int main() {
   const int n = 4;
   const int m = 2;
@@ -1350,7 +1178,6 @@ int main() {
     cout << endl;
   }
 }
-
 \end{lstlisting}
 \subsection{Reduced row echelon form, matrix rank (C++)}
 \begin{lstlisting}[language=C++]
@@ -1364,19 +1191,14 @@ int main() {
 //
 // OUTPUT:   rref[][] = an nxm matrix (stored in a[][])
 //           returns rank of a[][]
-
 #include <iostream>
 #include <vector>
 #include <cmath>
-
 using namespace std;
-
 const double EPSILON = 1e-10;
-
 typedef double T;
 typedef vector<T> VT;
 typedef vector<VT> VVT;
-
 int rref(VVT &a) {
   int n = a.size();
   int m = a[0].size();
@@ -1398,7 +1220,6 @@ int rref(VVT &a) {
   }
   return r;
 }
-
 int main() {
   const int n = 5, m = 4;
   double A[n][m] = {
@@ -1410,12 +1231,9 @@ int main() {
   VVT a(n);
   for (int i = 0; i < n; i++)
     a[i] = VT(A[i], A[i] + m);
-
   int rank = rref(a);
-
   // expected: 3
   cout << "Rank: " << rank << endl;
-
   // expected: 1 0 0 1 
   //           0 1 0 3 
   //           0 0 1 -3 
@@ -1428,16 +1246,13 @@ int main() {
     cout << endl;
   }
 }
-
 \end{lstlisting}
 \subsection{Fast Fourier transform (C++)}
 \begin{lstlisting}[language=C++]
 #include <cassert>
 #include <cstdio>
 #include <cmath>
-
-struct cpx
-{
+struct cpx {
   cpx(){}
   cpx(double aa):a(aa),b(0){}
   cpx(double aa, double bb):a(aa),b(bb){}
@@ -1452,30 +1267,24 @@ struct cpx
     return cpx(a, -b);
   }
 };
-
 cpx operator +(cpx a, cpx b)
 {
   return cpx(a.a + b.a, a.b + b.b);
 }
-
 cpx operator *(cpx a, cpx b)
 {
   return cpx(a.a * b.a - a.b * b.b, a.a * b.b + a.b * b.a);
 }
-
 cpx operator /(cpx a, cpx b)
 {
   cpx r = a * b.bar();
   return cpx(r.a / b.modsq(), r.b / b.modsq());
 }
-
 cpx EXP(double theta)
 {
   return cpx(cos(theta),sin(theta));
 }
-
 const double two_pi = 4 * acos(0);
-
 // in:     input array
 // out:    output array
 // step:   {SET TO 1} (used internally)
@@ -1500,7 +1309,6 @@ void FFT(cpx *in, cpx *out, int step, int size, int dir)
     out[i + size / 2] = even + EXP(dir * two_pi * (i + size / 2) / size) * odd;
   }
 }
-
 // Usage:
 // f[0...N-1] and g[0..N-1] are numbers
 // Want to compute the convolution h, defined by
@@ -1513,7 +1321,6 @@ void FFT(cpx *in, cpx *out, int step, int size, int dir)
 //   2. Get H by element-wise multiplying F and G.
 //   3. Get h by taking the inverse FFT (use dir = -1 as the argument)
 //      and *dividing by N*. DO NOT FORGET THIS SCALING FACTOR.
-
 int main(void)
 {
   printf("If rows come in identical pairs, then everything works.\n");
@@ -1524,7 +1331,6 @@ int main(void)
   cpx B[8];
   FFT(a, A, 1, 8, 1);
   FFT(b, B, 1, 8, 1);
-  
   for(int i = 0 ; i < 8 ; i++)
   {
     printf("%7.2lf%7.2lf", A[i].a, A[i].b);
@@ -1540,7 +1346,6 @@ int main(void)
     printf("%7.2lf%7.2lf", Ai.a, Ai.b);
   }
   printf("\n");
-  
   cpx AB[8];
   for(int i = 0 ; i < 8 ; i++)
     AB[i] = A[i] * B[i];
@@ -1566,7 +1371,6 @@ int main(void)
   
   return 0;
 }
-
 \end{lstlisting}
 \subsection{Simplex algorithm (C++)}
 \begin{lstlisting}[language=C++]
@@ -1586,27 +1390,21 @@ int main(void)
 //
 // To use this code, create an LPSolver object with A, b, and c as
 // arguments.  Then, call Solve(x).
-
 #include <iostream>
 #include <iomanip>
 #include <vector>
 #include <cmath>
 #include <limits>
-
 using namespace std;
-
 typedef long double DOUBLE;
 typedef vector<DOUBLE> VD;
 typedef vector<VD> VVD;
 typedef vector<int> VI;
-
 const DOUBLE EPS = 1e-9;
-
 struct LPSolver {
   int m, n;
   VI B, N;
   VVD D;
-
   LPSolver(const VVD &A, const VD &b, const VD &c) :
     m(b.size()), n(c.size()), N(n + 1), B(m), D(m + 2, VD(n + 2)) {
     for (int i = 0; i < m; i++) for (int j = 0; j < n; j++) D[i][j] = A[i][j];
@@ -1614,7 +1412,6 @@ struct LPSolver {
     for (int j = 0; j < n; j++) { N[j] = j; D[m][j] = -c[j]; }
     N[n] = -1; D[m + 1][n] = 1;
   }
-
   void Pivot(int r, int s) {
     for (int i = 0; i < m + 2; i++) if (i != r)
       for (int j = 0; j < n + 2; j++) if (j != s)
@@ -1624,7 +1421,6 @@ struct LPSolver {
     D[r][s] = 1.0 / D[r][s];
     swap(B[r], N[s]);
   }
-
   bool Simplex(int phase) {
     int x = phase == 1 ? m + 1 : m;
     while (true) {
@@ -1644,7 +1440,6 @@ struct LPSolver {
       Pivot(r, s);
     }
   }
-
   DOUBLE Solve(VD &x) {
     int r = 0;
     for (int i = 1; i < m; i++) if (D[i][n + 1] < D[r][n + 1]) r = i;
@@ -1664,9 +1459,7 @@ struct LPSolver {
     return D[m][n + 1];
   }
 };
-
 int main() {
-
   const int m = 4;
   const int n = 3;
   DOUBLE _A[m][n] = {
@@ -1693,7 +1486,6 @@ int main() {
   cerr << endl;
   return 0;
 }
-
 \end{lstlisting}
 \section{Graph algorithms}
 \subsection{Fast Dijkstra's algorithm (C++)}
@@ -1702,16 +1494,12 @@ int main() {
 // and priority queue for efficiency.
 //
 // Running time: O(|E| log |V|)
-
 #include <queue>
 #include <stdio.h>
-
 using namespace std;
 const int INF = 2000000000;
 typedef pair<int,int> PII;
-
 int main(){
-  
   int N, s, t;
   scanf ("%d%d%d", &N, &s, &t);
   vector<vector<PII> > edges(N);
@@ -1724,7 +1512,6 @@ int main(){
       edges[i].push_back (make_pair (dist, vertex)); // note order of arguments here
     }
   }
-  
   // use priority queue in which top element has the "smallest" priority
   priority_queue<PII, vector<PII>, greater<PII> > Q;
   vector<int> dist(N, INF), dad(N, -1);
@@ -1734,7 +1521,6 @@ int main(){
     PII p = Q.top();
     if (p.second == t) break;
     Q.pop();
-    
     int here = p.second;
     for (vector<PII>::iterator it=edges[here].begin(); it!=edges[here].end(); it++){
       if (dist[here] + it->first < dist[it->second]){
@@ -1744,15 +1530,12 @@ int main(){
       }
     }
   }
-  
   printf ("%d\n", dist[t]);
   if (dist[t] < INF)
     for(int i=t;i!=-1;i=dad[i])
       printf ("%d%c", i, (i==s?'\n':' '));
-    
   return 0;
 }
-
 \end{lstlisting}
 \subsection{Strongly connected components (C)}
 \begin{lstlisting}[language=C++]
@@ -1764,27 +1547,23 @@ int sp[MAXV], spr[MAXV];
 int group_cnt, group_num[MAXV];
 bool v[MAXV];
 int stk[MAXV];
-void fill_forward(int x)
-{
+void fill_forward(int x) {
   int i;
   v[x]=true;
   for(i=sp[x];i;i=e[i].nxt) if(!v[e[i].e]) fill_forward(e[i].e);
   stk[++stk[0]]=x;
 }
-void fill_backward(int x)
-{
+void fill_backward(int x) {
   int i;
   v[x]=false;
   group_num[x]=group_cnt;
   for(i=spr[x];i;i=er[i].nxt) if(v[er[i].e]) fill_backward(er[i].e);
 }
-void add_edge(int v1, int v2) //add edge v1->v2
-{
+void add_edge(int v1, int v2) { //add edge v1->v2
   e [++E].e=v2; e [E].nxt=sp [v1]; sp [v1]=E;
   er[  E].e=v1; er[E].nxt=spr[v2]; spr[v2]=E;
 }
-void SCC()
-{
+void SCC() {
   int i;
   stk[0]=0;
   memset(v, false, sizeof(v));
@@ -1797,7 +1576,6 @@ void SCC()
 \begin{lstlisting}
 struct Edge;
 typedef list<Edge>::iterator iter;
-
 struct Edge
 {
   int next_vertex;
@@ -1807,13 +1585,10 @@ struct Edge
     :next_vertex(next_vertex)
     { }
 };
-
 const int max_vertices = ;
 int num_vertices;
 list<Edge> adj[max_vertices];   // adjacency list
-
 vector<int> path;
-
 void find_path(int v)
 {
   while(adj[v].size() > 0)
@@ -1825,7 +1600,6 @@ void find_path(int v)
   }
   path.push_back(v);
 }
-
 void add_edge(int a, int b)
 {
   adj[a].push_front(Edge(b));
@@ -1835,7 +1609,6 @@ void add_edge(int a, int b)
   ita->reverse_edge = itb;
   itb->reverse_edge = ita;
 }
-
 \end{lstlisting}
 \section{Data structures}
 \subsection{Suffix arrays (C++)}
@@ -1850,19 +1623,15 @@ void add_edge(int a, int b)
 //          of substring s[i...L-1] in the list of sorted suffixes.
 //          That is, if we take the inverse of the permutation suffix[],
 //          we get the actual suffix array.
-
 #include <vector>
 #include <iostream>
 #include <string>
-
 using namespace std;
-
 struct SuffixArray {
   const int L;
   string s;
   vector<vector<int> > P;
   vector<pair<pair<int,int>,int> > M;
-
   SuffixArray(const string &s) : L(s.length()), s(s), P(1, vector<int>(L, 0)), M(L) {
     for (int i = 0; i < L; i++) P[0][i] = int(s[i]);
     for (int skip = 1, level = 1; skip < L; skip *= 2, level++) {
@@ -1874,9 +1643,7 @@ struct SuffixArray {
   P[level][M[i].second] = (i > 0 && M[i].first == M[i-1].first) ? P[level][M[i-1].second] : i;
     }    
   }
-
   vector<int> GetSuffixArray() { return P.back(); }
-
   // returns the length of the longest common prefix of s[i...L-1] and s[j...L-1]
   int LongestCommonPrefix(int i, int j) {
     int len = 0;
@@ -1891,9 +1658,7 @@ struct SuffixArray {
     return len;
   }
 };
-
 int main() {
-
   // bobocel is the 0'th suffix
   //  obocel is the 5'th suffix
   //   bocel is the 1'st suffix
@@ -1903,25 +1668,20 @@ int main() {
   //       l is the 4'th suffix
   SuffixArray suffix("bobocel");
   vector<int> v = suffix.GetSuffixArray();
-  
   // Expected output: 0 5 1 6 2 3 4
   //                  2
   for (int i = 0; i < v.size(); i++) cout << v[i] << " ";
   cout << endl;
   cout << suffix.LongestCommonPrefix(0, 2) << endl;
 }
-
 \end{lstlisting}
 \subsection{Binary Indexed Tree}
 \begin{lstlisting}[language=C++]
 #include <iostream>
 using namespace std;
-
 #define LOGSZ 17
-
 int tree[(1<<LOGSZ)+1];
 int N = (1<<LOGSZ);
-
 // add v to value at x
 void set(int x, int v) {
   while(x <= N) {
@@ -1929,7 +1689,6 @@ void set(int x, int v) {
     x += (x & -x);
   }
 }
-
 // get cumulative sum up to and including x
 int get(int x) {
   int res = 0;
@@ -1939,7 +1698,6 @@ int get(int x) {
   }
   return res;
 }
-
 // get largest value with cumulative sum less than or equal to x;
 // for smallest, pass x-1 and add 1 to result
 int getind(int x) {
@@ -1954,14 +1712,12 @@ int getind(int x) {
   }
   return idx;
 }
-
 \end{lstlisting}
 \subsection{Union-Find Set (C/C++)}
 \begin{lstlisting}[language=C++]
 //union-find set: the vector/array contains the parent of each node
 int find(vector <int>& C, int x){return (C[x]==x) ? x : C[x]=find(C, C[x]);} //C++
 int find(int x){return (C[x]==x)?x:C[x]=find(C[x]);} //C
-
 \end{lstlisting}
 \subsection{KD-tree (C++)}
 \begin{lstlisting}[language=C++]
