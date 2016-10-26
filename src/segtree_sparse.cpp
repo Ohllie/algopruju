@@ -6,36 +6,57 @@ struct node {
   int value = 0;
   node *left = 0;
   node *right = 0;
+
   node *getLeft() {
     if (!left) left = new node();
     return left;
   }
+
   node *getRight() {
     if (!right) right = new node();
     return right;
   }
 };
+
 node *root = new node();
-void updateRange(int left, int right, int value, node *current = 0, int nodeleft = MIN_N, int noderight = MAX_N) {
+
+void updateRange(int left, int right, int value,
+                 node *current = 0, int nodeleft = MIN_N,
+                 int noderight = MAX_N) {
   if (current == 0)current = root;
-  if (left > noderight || right < nodeleft)return;
+
+  if (left > noderight || right < nodeleft) return;
   if (left == nodeleft && right == noderight) {
     current->value += value;
     return;
   }
+
   int nodemid = nodeleft + (noderight - nodeleft + 1)/2;
-  updateRange(left, std::min(right, nodemid-1), value, current->getLeft(), nodeleft, nodemid-1);
-  updateRange(std::max(nodemid, left), right, value, current->getRight(), nodemid, noderight);
+
+  updateRange(left, std::min(right, nodemid-1), value,
+              current->getLeft(), nodeleft, nodemid-1);
+  updateRange(std::max(nodemid, left), right, value,
+              current->getRight(), nodemid, noderight);
 }
-int querySum(int index,  node *current = 0, int nodeleft = MIN_N, int noderight = MAX_N) {
+
+int querySum(int index,  node *current = 0,
+             int nodeleft = MIN_N, int noderight = MAX_N) {
   if (current == 0) current = root;
-  if (index < nodeleft || index > noderight)return 0;
-  if (index == nodeleft && index == noderight)return current->value;
+
+  if (index < nodeleft || index > noderight) return 0;
+  if (index == nodeleft && index == noderight)
+    return current->value;
+
   int nodemid = nodeleft + (noderight - nodeleft + 1)/2;
+
   if (index < nodemid && current->left)
-    return current->value + querySum(index, current->getLeft(), nodeleft, nodemid-1);
+    return current->value + querySum(index, current->getLeft(),
+             nodeleft, nodemid-1);
+
   if (current->right)
-    return current->value + querySum(index, current->getRight(), nodemid, noderight);
+    return current->value + querySum(index, current->getRight(),
+             nodemid, noderight);
+
   return current->value;
 }
 
